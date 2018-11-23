@@ -1,0 +1,4 @@
+
+products_path: "./products"
+log_path: "./logs"
+operators_path: "./operators"
