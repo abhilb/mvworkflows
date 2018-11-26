@@ -1,0 +1,7 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+    <file>icons/actionnode.png</file>
+    <file>icons/product.png</file>
+    <file>icons/workflow.png</file>
+</qresource>
+</RCC>
