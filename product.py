@@ -12,9 +12,9 @@ import resources
 
 class Workflow(QStandardItem):
     def __init__(self, name=None):
-        workflowName = name if name is not None else "workflow"
+        workflowName = name if name is not None else "new_workflow"
         super().__init__(QIcon(":/icons/workflow.png"), workflowName)
-        logging.info("Workflow created")
+        logging.info(f"{workflowName} Workflow created")
 
     def save(self):
         logging.info("Saving the workflow")
@@ -39,7 +39,7 @@ class Product(QStandardItemModel):
 
     def add_workflow(self, workflow = None):
         w = Workflow() if workflow is None else workflow
-        self.root.appendRow(workflow)
+        self.root.appendRow(w)
 
     def isValid(self):
         return True

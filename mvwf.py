@@ -28,6 +28,19 @@ for x in glob.glob(operators_dir):
         operators.append(match.group(1))
 logging.info(operators)
 
+config = {}
+with open("config.yaml") as f:
+    config = yaml.safe_load(f)
+logging.info(config)
+products_dir = config['products_path']
+product_files = glob.glob(os.path.join(products_dir, "*.json"))
+pattern = re.compile(r"(\w*)\.json")
+products = []
+for x in product_files:
+    match = pattern.search(x)
+    if match:
+        products.append(match.group(1))
+logging.info(products)
 
 class MainWindow(QMainWindow):
     """
@@ -102,9 +115,10 @@ class MainWindow(QMainWindow):
 
     def openProduct(self):
         fileName, _ = QFileDialog.getOpenFileName(self)
-        logging.info(f"Opening {fileName}")
-        self.product = Product.load_from_file(fileName)
-        self.productExplorer.setModel(self.product)
+        if fileName:
+            logging.info(f"Opening {fileName}")
+            self.product = Product.load_from_file(fileName)
+            self.productExplorer.setModel(self.product)
 
     def addWorkflow(self):
         if self.product.isValid():
@@ -114,8 +128,12 @@ class MainWindow(QMainWindow):
             pass
 
     def addOperator(self):
-        operator, ok = QInputDialog.getItem(self, "Operator", "Operator: ", operators, 0, False)
-        logging.info(f"Selected {operator}")
+        if self.product.isValid():
+            operator, ok = QInputDialog.getItem(self, "Operator", "Operator: ", operators, 0, False)
+            logging.info(f"Selected {operator}")
+            selectionModel = self.productExplorer.selectionModel()
+            currentIndex = selectionModel.currentIndex()
+            logging.info(f"Current index row:{currentIndex.row()} column: {currentIndex.column()}")
 
     def showConfig(self):
         if not self.configIsOpen:
