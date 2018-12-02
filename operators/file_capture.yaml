@@ -1,13 +1,5 @@
 name: "file_capture"
-
-paramters:
-    -
-    name: file_path
-    type: file_path
-    default: "."
-
-input:
-
-output:
-    image:
-        type: bitmap
+parameters: 
+- parameter: file_path
+  type: file_path
+  default: "d:\\"

@@ -4,6 +4,8 @@ import os
 import glob
 import yaml
 import re
+import json
+import pickle
 import logging
 logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
 
@@ -17,16 +19,6 @@ app = QApplication(sys.argv)
 
 # Local imports
 from product import *
-
-operators_dir = os.path.join(os.path.join(os.curdir, "operators"), "*.yaml")
-operators = []
-pattern = re.compile(r"(\w*)\.yaml")
-for x in glob.glob(operators_dir):
-    logging.info(x)
-    match = pattern.search(x)
-    if match:
-        operators.append(match.group(1))
-logging.info(operators)
 
 config = {}
 with open("config.yaml") as f:
@@ -42,7 +34,15 @@ for x in product_files:
         products.append(match.group(1))
 logging.info(products)
 
+Operator.load_operator_list()
+
+recent_files_list = []
+if os.path.exists("recentfiles.dat"):
+    with open("recentfiles.dat", "rb") as f:
+        recent_files_list = pickle.load(f)
+
 class MainWindow(QMainWindow):
+    MAX_RECENT_FILES_COUNT = 5
     """
     Workflow Editor widget
     """
@@ -58,9 +58,19 @@ class MainWindow(QMainWindow):
         self.newProduct = QAction("New Product", triggered=self.addProduct)
         self.openProduct = QAction("Open Product", triggered=self.openProduct)
         self.saveProduct = QAction("Save Product", triggered=self.saveProduct)
+
         self.fileMenu.addAction(self.newProduct)
         self.fileMenu.addAction(self.openProduct)
         self.fileMenu.addAction(self.saveProduct)
+        self.fileMenu.addSeparator()
+        self.recentFilesMenu = self.fileMenu.addMenu("Recent Products")
+        self.recentFileActions = []
+        for item in recent_files_list:
+            logging.info(f"Adding this to the recent file actions : {item}")
+            self.recentFileActions.append(QAction(item, triggered=self.openRecentFile))
+
+        for action in self.recentFileActions:
+            self.recentFilesMenu.addAction(action)
 
         self.productMenu = self.menuBar().addMenu("&Product")
         self.newWorkflow = QAction("Add Workflow", triggered=self.addWorkflow)
@@ -73,6 +83,14 @@ class MainWindow(QMainWindow):
         self.settingsMenu = self.menuBar().addMenu("&Settings")
         self.showConfig = QAction("Show Config", triggered=self.showConfig)
         self.settingsMenu.addAction(self.showConfig)
+
+        # Tool bar
+
+        # Status bar
+        statusBarWidget = QWidget()
+        statusBarWidget.setLayout(QHBoxLayout())
+        statusBarWidget.layout().addWidget(QLabel("Machine Vision Workflows"))
+        self.statusBar().addPermanentWidget(statusBarWidget)
 
         self.setCentralWidget(QTabWidget())
         centralWidget = self.centralWidget()
@@ -88,8 +106,21 @@ class MainWindow(QMainWindow):
 
         self.configIsOpen = False
         self.configTabIndex = -1
-
         self.product = InvalidProduct()
+
+    def openRecentFile(self):
+        action = self.sender()
+        if action:
+            filename = action.text()
+            logging.info(f"Open the product: {filename}")
+            self.product = ProductModel.load_from_file(filename)
+            self.productExplorer.setModel(self.product)
+
+    def closeEvent(self, event):
+        logging.info("Application close event")
+        with open("recentfiles.dat", "wb") as f:
+            pickle.dump(recent_files_list, f)
+        QCloseEvent(event)
 
     def onTabClose(self, index):
         if index == self.configTabIndex:
@@ -104,7 +135,7 @@ class MainWindow(QMainWindow):
         else:
             self.dockingWidget.show()
         pass
-        self.product = Product()
+        self.product = ProductModel()
         self.productExplorer.setModel(self.product)
 
     def saveProduct(self):
@@ -117,8 +148,9 @@ class MainWindow(QMainWindow):
         fileName, _ = QFileDialog.getOpenFileName(self)
         if fileName:
             logging.info(f"Opening {fileName}")
-            self.product = Product.load_from_file(fileName)
+            self.product = ProductModel.load_from_file(fileName)
             self.productExplorer.setModel(self.product)
+            recent_files_list.append(fileName)
 
     def addWorkflow(self):
         if self.product.isValid():
@@ -129,11 +161,18 @@ class MainWindow(QMainWindow):
 
     def addOperator(self):
         if self.product.isValid():
-            operator, ok = QInputDialog.getItem(self, "Operator", "Operator: ", operators, 0, False)
-            logging.info(f"Selected {operator}")
             selectionModel = self.productExplorer.selectionModel()
             currentIndex = selectionModel.currentIndex()
-            logging.info(f"Current index row:{currentIndex.row()} column: {currentIndex.column()}")
+            node = self.product.itemFromIndex(currentIndex)
+            if node is not None:
+                nodeType = node.node_type
+                if nodeType == NodeType.WORKFLOW:
+                    logging.info("Node is of type workflow")
+                    operator, ok = QInputDialog.getItem(self, "Operator",
+                                                        "Operator: ",
+                                                        Operator.operators,
+                                                        0, False)
+                    node.add_operator(operator)
 
     def showConfig(self):
         if not self.configIsOpen:

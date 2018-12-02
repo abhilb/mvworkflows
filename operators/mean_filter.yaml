@@ -1,0 +1,17 @@
+name: "mean_filter"
+parameters:
+- parameter: 'filter_size'
+  type: 'int'
+  default: 3
+  minimum: 3
+  maximum: 51
+
+input:
+-
+name: 'image'
+type: 'bitmap'
+
+output:
+-
+name: 'mean_image'
+type: 'bitmap'
