@@ -82,7 +82,9 @@ class MainWindow(QMainWindow):
 
         self.settingsMenu = self.menuBar().addMenu("&Settings")
         self.showConfig = QAction("Show Config", triggered=self.showConfig)
+        self.showProductExplorer = QAction("Show Product Explorer", triggered=self.show_product_explorer)
         self.settingsMenu.addAction(self.showConfig)
+        self.settingsMenu.addAction(self.showProductExplorer)
 
         # Tool bar
 
@@ -104,6 +106,13 @@ class MainWindow(QMainWindow):
         self.dockingWidget.setWidget(self.productExplorer)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockingWidget)
 
+        # Operator Editor
+        self.operatorEditor = QTreeView()
+        self.operatorEditor.setHeaderHidden(True)
+        self.operatorEditorDock = QDockWidget("Operator editor", self)
+        self.operatorEditorDock.setWidget(self.operatorEditor)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.operatorEditorDock)
+
         self.configIsOpen = False
         self.configTabIndex = -1
         self.product = InvalidProduct()
@@ -115,6 +124,12 @@ class MainWindow(QMainWindow):
             logging.info(f"Open the product: {filename}")
             self.product = ProductModel.load_from_file(filename)
             self.productExplorer.setModel(self.product)
+
+    def show_product_explorer(self):
+        logging.info("Show product explorer")
+        if self.dockingWidget:
+            logging.info("Product explorer is not None")
+            self.dockingWidget.setVisible(True)
 
     def closeEvent(self, event):
         logging.info("Application close event")
