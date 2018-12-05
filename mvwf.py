@@ -33,6 +33,8 @@ for x in product_files:
     if match:
         products.append(match.group(1))
 logging.info(products)
+logging.info("test")
+
 
 Operator.load_operator_list()
 
@@ -83,8 +85,16 @@ class MainWindow(QMainWindow):
         self.settingsMenu = self.menuBar().addMenu("&Settings")
         self.showConfig = QAction("Show Config", triggered=self.showConfig)
         self.showProductExplorer = QAction("Show Product Explorer", triggered=self.show_product_explorer)
+        self.showOperatorEditor = QAction("Show Operator Editor", triggered=self.show_operator_editor)
         self.settingsMenu.addAction(self.showConfig)
         self.settingsMenu.addAction(self.showProductExplorer)
+        self.settingsMenu.addAction(self.showOperatorEditor)
+
+        self.helpMenu = self.menuBar().addMenu("&Help")
+        self.aboutQtAction = QAction("About Qt", triggered=QApplication.aboutQt)
+        self.aboutAction = QAction("About", triggered=self.show_about_dlg)
+        self.helpMenu.addAction(self.aboutQtAction)
+        self.helpMenu.addAction(self.aboutAction)
 
         # Tool bar
 
@@ -102,6 +112,7 @@ class MainWindow(QMainWindow):
         # Product Explorer
         self.productExplorer = QTreeView()
         self.productExplorer.setHeaderHidden(True)
+        self.productExplorer.clicked.connect(self.product_item_selected)
         self.dockingWidget = QDockWidget("Product explorer", self)
         self.dockingWidget.setWidget(self.productExplorer)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockingWidget)
@@ -117,6 +128,14 @@ class MainWindow(QMainWindow):
         self.configTabIndex = -1
         self.product = InvalidProduct()
 
+    def product_item_selected(self, index):
+        model = index.model()
+        item = model.itemFromIndex(index)
+        if item.node_type == NodeType.OPERATOR:
+            operatorModel = QStandardItemModel()
+            operatorModel.appendRow(item.operatorInfo)
+            self.operatorEditor.setModel(operatorModel)
+
     def openRecentFile(self):
         action = self.sender()
         if action:
@@ -125,11 +144,24 @@ class MainWindow(QMainWindow):
             self.product = ProductModel.load_from_file(filename)
             self.productExplorer.setModel(self.product)
 
+    def show_about_dlg(self):
+        msgBox = QMessageBox()
+        msgBox.setIcon(QMessageBox.Information)
+        msgBox.setWindowTitle("About")
+        msgBox.setText("Machine Vision Workflows")
+        msgBox.setInformativeText("v.0.0.1")
+        msgBox.setStandardButtons(QMessageBox.Ok)
+        msgBox.exec_()
+
     def show_product_explorer(self):
         logging.info("Show product explorer")
         if self.dockingWidget:
-            logging.info("Product explorer is not None")
             self.dockingWidget.setVisible(True)
+
+    def show_operator_editor(self):
+        logging.info("Show operator editor")
+        if self.operatorEditorDock:
+            self.operatorEditorDock.setVisible(True)
 
     def closeEvent(self, event):
         logging.info("Application close event")
