@@ -32,5 +32,5 @@ class Workflow(NodeItem):
         logging.info(f"[Workflow] adding operator")
         name = OperatorFactory.get_unique_name(self.operatorNames, template)
         logging.info(f"Operator name is {name}")
-        self.appendRow(operator.Operator(template, name))
+        self.appendRow(Operator(template, name))
         self.operatorNames.append(name)

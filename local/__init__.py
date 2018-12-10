@@ -1,4 +1,5 @@
 import glob
+import os
 import re
 import yaml
 import logging
@@ -6,7 +7,7 @@ logging.basicConfig(format="%(levelname)s - %(message)s", level="INFO")
 
 Operators = {}
 
-yaml_files = glob.glob("operators/*.yaml")
+yaml_files = glob.glob("local/operators/*.yaml")
 for filename in yaml_files:
     pattern = re.compile(r"(\w+).yaml")
     match = pattern.search(filename)

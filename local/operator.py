@@ -1,4 +1,12 @@
 from local.node import NodeItem, NodeType
+from local import Operators
+from PyQt5.QtGui import QIcon, QStandardItem
+
+
+import os
+import yaml
+import uuid
+import logging
 
 class OperatorInfo(NodeItem):
     def __init__(self):
@@ -14,23 +22,15 @@ class Operator(NodeItem):
     def __init__(self, template, name=None):
         super().__init__(name, QIcon(":icons/actionnode.png"),
                          NodeType.OPERATOR)
-        operator_file = template + ".yaml"
-        operators_path = os.path.join(os.getcwd(), "operators")
-        operator_filepath = os.path.join(operators_path, operator_file)
-        logging.info(f"Operator path: {operator_filepath}")
         self.operatorInfo = OperatorInfo()
-        self.parameters = {}
+        op = Operators[template]
+        self.parameters = op['parameters']
 
-        with open(operator_filepath, "r") as f:
-            operator_info = yaml.safe_load(f)
-            operator_params = operator_info['parameters']
-            logging.info(f"Parameters : {operator_params}")
-            self.paramters = operator_params
-            for item in operator_params:
-                logging.info(f"Parameter Name: {item['parameter']}")
-                logging.info(f"Parameter Value: {item['value']}")
-                self.operatorInfo.appendRow([QStandardItem(item['parameter']),
-                    QStandardItem(item['value'])])
+        for item in self.parameters:
+            logging.info(f"Parameter Name: {item['parameter']}")
+            logging.info(f"Parameter Value: {item['value']}")
+            self.operatorInfo.appendRow([QStandardItem(item['parameter']),
+                QStandardItem(item['value'])])
 
     def has_result(self):
         """
