@@ -1,6 +1,7 @@
 name: "mean_filter"
 parameters:
 - parameter: 'filter_size'
+  value: 9
   type: 'int'
   default: 3
   minimum: 3
@@ -10,6 +11,7 @@ input:
 -
 name: 'image'
 type: 'bitmap'
+opid: ''
 
 output:
 -

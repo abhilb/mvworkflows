@@ -18,7 +18,8 @@ import qdarkstyle
 app = QApplication(sys.argv)
 
 # Local imports
-from product import *
+from local.product import *
+from local import Operators
 
 config = {}
 with open("config.yaml") as f:
@@ -36,7 +37,6 @@ logging.info(products)
 logging.info("test")
 
 
-Operator.load_operator_list()
 
 recent_files_list = []
 if os.path.exists("recentfiles.dat"):
@@ -217,7 +217,7 @@ class MainWindow(QMainWindow):
                     logging.info("Node is of type workflow")
                     operator, ok = QInputDialog.getItem(self, "Operator",
                                                         "Operator: ",
-                                                        Operator.operators,
+                                                        Operators.keys(),
                                                         0, False)
                     node.add_operator(operator)
 
