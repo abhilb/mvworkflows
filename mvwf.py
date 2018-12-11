@@ -143,6 +143,8 @@ class MainWindow(QMainWindow):
             logging.info(f"Open the product: {filename}")
             self.product = ProductModel.load_from_file(filename)
             self.productExplorer.setModel(self.product)
+            self.productExplorer.expandAll()
+
 
     def show_about_dlg(self):
         msgBox = QMessageBox()
