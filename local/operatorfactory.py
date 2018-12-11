@@ -13,6 +13,6 @@ class OperatorFactory():
             if operator_type in name:
                 match = pattern.search(name)
                 if match:
-                    num = match.group(1)
+                    num = int(match.group(1))
         operator_name = f"{operator_type}_{num+1}"
         return operator_name
