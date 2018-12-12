@@ -3,7 +3,7 @@ import logging
 
 from local.node import NodeType, NodeItem
 from local.operatorfactory import *
-from local.operator import Operator, OperatorInfo
+from local.operator import Operator
 from local.operatorfactory import OperatorFactory
 
 class Workflow(NodeItem):

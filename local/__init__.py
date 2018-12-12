@@ -19,5 +19,3 @@ for filename in yaml_files:
         with open(filename, "r") as f:
             Operators[operator_name] = yaml.safe_load(f)
 
-logging.info("-----------------------")
-logging.info(f"Operators: {Operators}")

@@ -19,9 +19,9 @@ from local.product import *
 from local import Operators
 
 # globals
-app = QApplication(sys.argv)
 config = {}
 recent_files_list = []
+app = QApplication(sys.argv)
 
 def app_init():
     """
@@ -45,9 +45,12 @@ def app_init():
             products.append(match.group(1))
 
     # Load the recently opened products list
+    global recent_files_list
+
     if os.path.exists("recentfiles.dat"):
         with open("recentfiles.dat", "rb") as f:
             recent_files_list = pickle.load(f)
+    print(recent_files_list)
 
 class MainWindow(QMainWindow):
     MAX_RECENT_FILES_COUNT = 5
@@ -56,6 +59,9 @@ class MainWindow(QMainWindow):
     """
     def __init__(self, parent=None):
         super().__init__(parent)
+
+        app_init()
+        print(recent_files_list)
 
         # Set window title and geometry
         self.setWindowTitle("Machine Vision Workflows")
@@ -138,9 +144,7 @@ class MainWindow(QMainWindow):
         model = index.model()
         item = model.itemFromIndex(index)
         if item.node_type == NodeType.OPERATOR:
-            operatorModel = QStandardItemModel()
-            operatorModel.appendRow(item.operatorInfo)
-            self.operatorEditor.setModel(operatorModel)
+            self.operatorEditor.setModel(item.parameters)
 
     def openRecentFile(self):
         action = self.sender()
@@ -248,7 +252,6 @@ class MainWindow(QMainWindow):
             self.configIsOpen = True
 
 if __name__ == "__main__":
-    app_init()
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     mainWindow = MainWindow()
     mainWindow.show()

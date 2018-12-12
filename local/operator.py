@@ -1,20 +1,21 @@
 from local.node import NodeItem, NodeType
 from local import Operators
-from PyQt5.QtGui import QIcon, QStandardItem
-
+from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
 
 import os
 import yaml
 import uuid
 import logging
 
-class OperatorInfo(NodeItem):
-    def __init__(self):
-        super().__init__("Parameters", QIcon(":icons/actionnode.png"),
-                         NodeType.OPERATORINFO)
-        self.uuid = uuid.uuid4()
-
 class Operator(NodeItem):
+    """
+    Represents a machine vision operation
+    Parameters and the description of each operation is specified
+    in a yaml file. This class instantiates an operation.
+    Serialization of the instance will save the name, type and
+    parameters of the operation. Deserialization will then restore
+    the parameter values.
+    """
     # class attributes
     operators = []
 
@@ -22,17 +23,13 @@ class Operator(NodeItem):
     def __init__(self, template, name=None):
         super().__init__(name, QIcon(":icons/actionnode.png"),
                          NodeType.OPERATOR)
-        self.operatorInfo = OperatorInfo()
         op = Operators[template]
-        self.parameters = op['parameters']
+        self.parameters = QStandardItemModel()
         self.name = name
         self.template = template
-
-        for item in self.parameters:
-            logging.info(f"Parameter Name: {item['parameter']}")
-            logging.info(f"Parameter Value: {item['value']}")
-            self.operatorInfo.appendRow([QStandardItem(item['parameter']),
-                QStandardItem(item['value'])])
+        for item in op['parameters']:
+            self.parameters.appendRow([QStandardItem(item['parameter']),
+                QStandardItem(str(item['value']))])
 
     def has_result(self):
         """
@@ -79,8 +76,11 @@ class Operator(NodeItem):
         ret = {}
         ret['operator'] = self.template
         ret['name'] = self.name
-        for item in self.parameters:
-            parameter_name = item['parameter']
-            parameter_value = item['value']
-            ret[parameter_name] = parameter_value
+        for row in range(self.parameters.rowCount()):
+            parameter_index = self.parameters.index(row, 0)
+            value_index = self.parameters.index(row, 1)
+            parameter = self.parameters.itemFromIndex(parameter_index)
+            value = self.parameters.itemFromIndex(value_index)
+            print(f"{row+1} : {parameter.text()} : {value.text()}")
+            ret[parameter.text()] = value.text()
         return ret
