@@ -25,6 +25,8 @@ class Operator(NodeItem):
         self.operatorInfo = OperatorInfo()
         op = Operators[template]
         self.parameters = op['parameters']
+        self.name = name
+        self.template = template
 
         for item in self.parameters:
             logging.info(f"Parameter Name: {item['parameter']}")
@@ -58,6 +60,27 @@ class Operator(NodeItem):
         """
         pass
 
-    def save(self):
+    @staticmethod
+    def from_json(data):
+        """
+        Loads Operator from Json data
+        """
+        try:
+            operator_type = data['operator']
+            operator_name = data['name']
+        except KeyError as e:
+            logging.error("Failed to load operator from json - key error")
+        else:
+            return Operator(operator_type, operator_name)
+
+    def to_json(self):
         """Save the operator to file"""
         logging.info("Saving the operator")
+        ret = {}
+        ret['operator'] = self.template
+        ret['name'] = self.name
+        for item in self.parameters:
+            parameter_name = item['parameter']
+            parameter_value = item['value']
+            ret[parameter_name] = parameter_value
+        return ret

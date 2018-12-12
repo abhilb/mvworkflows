@@ -1,4 +1,3 @@
-
 import sys
 import os
 import glob
@@ -15,33 +14,40 @@ from PyQt5.QtCore import *
 from PyQt5.QtGui import *
 import qdarkstyle
 
-app = QApplication(sys.argv)
-
 # Local imports
 from local.product import *
 from local import Operators
 
+# globals
+app = QApplication(sys.argv)
 config = {}
-with open("config.yaml") as f:
-    config = yaml.safe_load(f)
-logging.info(config)
-products_dir = config['products_path']
-product_files = glob.glob(os.path.join(products_dir, "*.json"))
-pattern = re.compile(r"(\w*)\.json")
-products = []
-for x in product_files:
-    match = pattern.search(x)
-    if match:
-        products.append(match.group(1))
-logging.info(products)
-logging.info("test")
-
-
-
 recent_files_list = []
-if os.path.exists("recentfiles.dat"):
-    with open("recentfiles.dat", "rb") as f:
-        recent_files_list = pickle.load(f)
+
+def app_init():
+    """
+    Application initialization
+    It carries out the following functions
+    a) Load the config
+    b) Load the recently opened products list
+    """
+
+    # Load the config
+    with open("config.yaml") as f:
+        config = yaml.safe_load(f)
+    logging.info(config)
+    products_dir = config['products_path']
+    product_files = glob.glob(os.path.join(products_dir, "*.json"))
+    pattern = re.compile(r"(\w*)\.json")
+    products = []
+    for x in product_files:
+        match = pattern.search(x)
+        if match:
+            products.append(match.group(1))
+
+    # Load the recently opened products list
+    if os.path.exists("recentfiles.dat"):
+        with open("recentfiles.dat", "rb") as f:
+            recent_files_list = pickle.load(f)
 
 class MainWindow(QMainWindow):
     MAX_RECENT_FILES_COUNT = 5
@@ -145,7 +151,6 @@ class MainWindow(QMainWindow):
             self.productExplorer.setModel(self.product)
             self.productExplorer.expandAll()
 
-
     def show_about_dlg(self):
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
@@ -243,6 +248,7 @@ class MainWindow(QMainWindow):
             self.configIsOpen = True
 
 if __name__ == "__main__":
+    app_init()
     app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     mainWindow = MainWindow()
     mainWindow.show()

@@ -19,14 +19,26 @@ class Workflow(NodeItem):
         workflowName = self.text()
         ret = {}
         ret['name'] = workflowName
-        ret['actions'] = []
+        operators = []
+        if self.hasChildren():
+            rowCount = self.rowCount()
+            for i in range(rowCount):
+                op = self.child(i)
+                operators.append(op.to_json())
+        ret['operators'] = operators
         return ret
 
     @staticmethod
     def load(data):
         #@todo handle key not found error
         name = data['name']
-        return Workflow(name)
+        wf = Workflow(name)
+        operators = data['operators']
+        for op in operators:
+            operator = Operator.from_json(op)
+            wf.appendRow(operator)
+            wf.operatorNames.append(operator.name)
+        return wf
 
     def add_operator(self, template):
         logging.info(f"[Workflow] adding operator")
