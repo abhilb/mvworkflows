@@ -28,8 +28,18 @@ class Operator(NodeItem):
         self.name = name
         self.template = template
         for item in op['parameters']:
-            self.parameters.appendRow([QStandardItem(item['parameter']),
-                QStandardItem(str(item['value']))])
+            parameter = QStandardItem(item['parameter'])
+            value = QStandardItem(item['value'])
+            parameter.setEditable(False)
+            value.setEditable(True)
+            self.parameters.appendRow([parameter, value])
+
+    def set_parameter(self, parameter, value):
+        """
+        Update the value of the parameter
+        Raise exception if parameter not found
+        """
+        pass
 
     def has_result(self):
         """
@@ -63,12 +73,20 @@ class Operator(NodeItem):
         Loads Operator from Json data
         """
         try:
+            operator_parameter = {}
+            for key in data.keys():
+                if key == 'operator' or key == 'name':
+                    continue
+                operator_parameter[key] = data[key]
             operator_type = data['operator']
             operator_name = data['name']
         except KeyError as e:
             logging.error("Failed to load operator from json - key error")
         else:
-            return Operator(operator_type, operator_name)
+            operator = Operator(operator_type, operator_name)
+            for parameter, value in operator_parameter.items():
+                operator.set_parameter(parameter, value)
+            return operator
 
     def to_json(self):
         """Save the operator to file"""
