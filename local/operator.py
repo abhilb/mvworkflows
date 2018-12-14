@@ -1,6 +1,6 @@
 from local.node import NodeItem, NodeType
 from local import Operators
-from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel
+from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QFont
 
 import os
 import yaml
@@ -29,17 +29,37 @@ class Operator(NodeItem):
         self.template = template
         for item in op['parameters']:
             parameter = QStandardItem(item['parameter'])
-            value = QStandardItem(item['value'])
+            value = QStandardItem(str(item['value']))
             parameter.setEditable(False)
+            parameter.setSelectable(False)
+
+            parameter_font = parameter.font()
+            parameter_font.setWeight(QFont.Bold)
+            parameter_font_size = parameter_font.pointSize()
+            if parameter_font_size == -1:
+                parameter_font.setPixelSize(parameter_font.pixelSize() + 1)
+            else:
+                parameter_font.setPointSize(parameter_font_size + 1)
+            parameter_font.setItalic(True)
+            parameter_font.setCapitalization(QFont.AllUppercase)
+
+            parameter.setFont(parameter_font)
             value.setEditable(True)
+            # value.setData(item['value'], Qt.EditRole)
             self.parameters.appendRow([parameter, value])
 
-    def set_parameter(self, parameter, value):
+    def set_parameter(self, name, value):
         """
         Update the value of the parameter
         Raise exception if parameter not found
         """
-        pass
+        row_count = self.rowCount()
+        for row in range(row_count):
+            parameter = self.child(row, 0)
+            parameter_name = parameter.text()
+            parameter_value = self.child(row, 1)
+            if parameter_name == name:
+               parameter_value.setText(value)
 
     def has_result(self):
         """
@@ -85,6 +105,7 @@ class Operator(NodeItem):
         else:
             operator = Operator(operator_type, operator_name)
             for parameter, value in operator_parameter.items():
+                print(f"{parameter} : {value}")
                 operator.set_parameter(parameter, value)
             return operator
 
