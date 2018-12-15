@@ -2,7 +2,7 @@ name: "mean_filter"
 parameters:
 - parameter: 'filter_size'
   value: 9
-  type: 'int'
+  type: INT_PARAM
   default: 3
   minimum: 3
   maximum: 51

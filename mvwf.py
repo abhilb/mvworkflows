@@ -17,6 +17,7 @@ import qdarkstyle
 # Local imports
 from local.product import *
 from local import Operators
+from local.paramdelegate import ParamDelegate
 
 # globals
 config = {}
@@ -131,6 +132,7 @@ class MainWindow(QMainWindow):
 
         # Operator Editor
         self.operatorEditor = QTreeView()
+        self.operatorEditor.setItemDelegate(ParamDelegate())
         self.operatorEditor.setHeaderHidden(True)
         self.operatorEditorDock = QDockWidget("Operator editor", self)
         self.operatorEditorDock.setWidget(self.operatorEditor)

@@ -1,5 +1,6 @@
 from local.node import NodeItem, NodeType
 from local import Operators
+from local.parameteritem import ParameterItem, ParameterType
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QFont
 
 import os
@@ -27,9 +28,13 @@ class Operator(NodeItem):
         self.parameters = QStandardItemModel()
         self.name = name
         self.template = template
+
         for item in op['parameters']:
             parameter = QStandardItem(item['parameter'])
-            value = QStandardItem(str(item['value']))
+
+            print(f"parameter_type : {item['type']}  {type(item['type'])}")
+            paramter_type = ParameterType[item['type']]
+            value = ParameterItem(item['type'], item['value'])
             parameter.setEditable(False)
             parameter.setSelectable(False)
 

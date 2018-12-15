@@ -2,5 +2,5 @@ name: "file_capture"
 parameters: 
 - parameter: file_path
   value: "d:\\images\\"
-  type: file_path
+  type: FILE_PATH_PARAM
   default: "d:\\"
