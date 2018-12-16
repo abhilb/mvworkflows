@@ -2,6 +2,7 @@ from local.node import NodeItem, NodeType
 from local import Operators
 from local.parameteritem import ParameterItem, ParameterType
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QFont
+from PyQt5.QtCore import Qt
 
 import os
 import yaml
@@ -33,7 +34,9 @@ class Operator(NodeItem):
             parameter = QStandardItem(item['parameter'])
             parameter_type = ParameterType[item['type']]
             parameter_value = item['value']
-            value = ParameterItem(parameter_type, parameter_value)
+            value = QStandardItem()
+            value.setData(parameter_value, Qt.DisplayRole)
+            value.setData(parameter_type, Qt.UserRole)
             parameter.setEditable(False)
             parameter.setSelectable(False)
 
@@ -55,13 +58,14 @@ class Operator(NodeItem):
         Update the value of the parameter
         Raise exception if parameter not found
         """
-        row_count = self.rowCount()
+        row_count = self.parameters.rowCount()
+        print(f"row count : {row_count}")
         for row in range(row_count):
-            parameter = self.child(row, 0)
-            parameter_name = parameter.text()
-            parameter_value = self.child(row, 1)
+            parameter_name = self.parameters.item(row, 0).text()
+            parameter_item = self.parameters.item(row, 1)
             if parameter_name == name:
-               parameter_value.setText(value)
+                parameter_item.setData(value, Qt.DisplayRole)
+
 
     def has_result(self):
         """
@@ -107,7 +111,6 @@ class Operator(NodeItem):
         else:
             operator = Operator(operator_type, operator_name)
             for parameter, value in operator_parameter.items():
-                print(f"{parameter} : {value}")
                 operator.set_parameter(parameter, value)
             return operator
 

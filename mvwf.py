@@ -12,7 +12,7 @@ logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import qdarkstyle
+#import qdarkstyle
 
 # Local imports
 from local.product import *
@@ -254,7 +254,7 @@ class MainWindow(QMainWindow):
             self.configIsOpen = True
 
 if __name__ == "__main__":
-    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    #app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     mainWindow = MainWindow()
     mainWindow.show()
     sys.exit(app.exec_())

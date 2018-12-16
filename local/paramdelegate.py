@@ -19,13 +19,15 @@ class ParamDelegate(QStyledItemDelegate):
         model = index.model()
         assert(model != None)
         parameter = model.itemFromIndex(index)
-        parameter_type = parameter.get_param_type()
+        parameter_type = parameter.data(Qt.UserRole)
+        parameter_value = parameter.data(Qt.DisplayRole)
         print(f"Parameter type: {parameter_type} - {type(parameter_type)}")
         if parameter_type is ParameterType.INT_PARAM:
             editor = QSpinBox(parent)
             editor.setFrame(False)
             editor.setMinimum(3)
             editor.setMaximum(100)
+            editor.setValue(int(parameter_value))
             return editor
         else:
             return QPushButton("Test")
@@ -33,13 +35,16 @@ class ParamDelegate(QStyledItemDelegate):
     def setEditorData(self, editor, index):
         model = index.model()
         parameter = model.itemFromIndex(index)
-        if parameter.get_param_type() is ParameterType.INT_PARAM:
-            editor.setValue(parameter.get_param_value())
+        parameter_type = parameter.data(Qt.UserRole)
+        parameter_value = parameter.data(Qt.DisplayRole)
+        if parameter_type is ParameterType.INT_PARAM:
+            editor.setValue(int(parameter_value))
 
     def setModelData(self, editor, model, index):
         parameter = model.itemFromIndex(index)
-        if parameter.get_param_type() is ParameterType.INT_PARAM:
-            parameter.set_param_value(editor.value())
+        parameter_type = parameter.data(Qt.UserRole)
+        if parameter_type is ParameterType.INT_PARAM:
+            parameter.setData(editor.value(), Qt.DisplayRole)
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
