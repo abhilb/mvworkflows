@@ -21,7 +21,7 @@ class ParamDelegate(QStyledItemDelegate):
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
         parameter_value = parameter.data(Qt.DisplayRole)
-        print(f"Parameter type: {parameter_type} - {type(parameter_type)}")
+        print(f"parameter type: {parameter_type} - {type(parameter_type)}")
         if parameter_type is ParameterType.INT_PARAM:
             editor = QSpinBox(parent)
             editor.setFrame(False)
@@ -29,8 +29,10 @@ class ParamDelegate(QStyledItemDelegate):
             editor.setMaximum(100)
             editor.setValue(int(parameter_value))
             return editor
-        else:
-            return QPushButton("Test")
+        elif parameter_type is ParameterType.FILE_PATH_PARAM:
+            editor = QFileDialog(parent)
+            editor.setFileMode(QFileDialog.Directory)
+            return editor
 
     def setEditorData(self, editor, index):
         model = index.model()
@@ -39,12 +41,24 @@ class ParamDelegate(QStyledItemDelegate):
         parameter_value = parameter.data(Qt.DisplayRole)
         if parameter_type is ParameterType.INT_PARAM:
             editor.setValue(int(parameter_value))
+        elif parameter_type is ParameterType.FILE_PATH_PARAM:
+            pass
 
     def setModelData(self, editor, model, index):
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
         if parameter_type is ParameterType.INT_PARAM:
             parameter.setData(editor.value(), Qt.DisplayRole)
+        elif parameter_type is ParameterType.FILE_PATH_PARAM:
+            selectedFilesList = editor.selectedFiles()
+            if selectedFilesList is not None and len(selectedFilesList) > 0:
+                selectedFolder = selectedFilesList[0]
+                parameter.setData(selectedFolder, Qt.DisplayRole)
 
     def updateEditorGeometry(self, editor, option, index):
-        editor.setGeometry(option.rect)
+        model = index.model()
+        parameter = model.itemFromIndex(index)
+        parameter_type = parameter.data(Qt.UserRole)
+        if parameter_type != ParameterType.FILE_PATH_PARAM:
+            editor.setGeometry(option.rect)
+
