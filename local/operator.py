@@ -31,10 +31,9 @@ class Operator(NodeItem):
 
         for item in op['parameters']:
             parameter = QStandardItem(item['parameter'])
-
-            print(f"parameter_type : {item['type']}  {type(item['type'])}")
-            paramter_type = ParameterType[item['type']]
-            value = ParameterItem(item['type'], item['value'])
+            parameter_type = ParameterType[item['type']]
+            parameter_value = item['value']
+            value = ParameterItem(parameter_type, parameter_value)
             parameter.setEditable(False)
             parameter.setSelectable(False)
 
@@ -47,10 +46,8 @@ class Operator(NodeItem):
                 parameter_font.setPointSize(parameter_font_size + 1)
             parameter_font.setItalic(True)
             parameter_font.setCapitalization(QFont.AllUppercase)
-
             parameter.setFont(parameter_font)
-            value.setEditable(True)
-            # value.setData(item['value'], Qt.EditRole)
+
             self.parameters.appendRow([parameter, value])
 
     def set_parameter(self, name, value):

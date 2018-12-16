@@ -5,6 +5,8 @@ from PyQt5.QtCore import *
 import logging
 logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
 
+from local.parameteritem import *
+
 class ParamDelegate(QStyledItemDelegate):
     """
     Delegate for parameter
@@ -14,14 +16,25 @@ class ParamDelegate(QStyledItemDelegate):
         logging.info("Param delegate created")
 
     def createEditor(self, parent, option, index):
-        logging.info("Create editor called")
-        pass
+        model = index.model()
+        assert(model != None)
+        parameter = model.itemFromIndex(index)
+        parameter_type = parameter.get_param_type()
+        print(f"Parameter type: {parameter_type} - {type(parameter_type)}")
+        if parameter_type is ParameterType.INT_PARAM:
+            editor = QSpinBox(parent)
+            editor.setFrame(False)
+            editor.setMinimum(3)
+            editor.setMaximum(100)
+            return editor
+        else:
+            return QPushButton("Test")
 
     def setEditorData(self, editor, index):
         pass
 
-    def setModelData(self, model, index):
+    def setModelData(self, editor, model, index):
         pass
 
     def updateEditorGeometry(self, editor, option, index):
-        pass
+        editor.setGeometry(option.rect)
