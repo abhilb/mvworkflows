@@ -27,6 +27,10 @@ class ParameterItem(QStandardItem):
     def get_param_value(self):
         return self.param_value
 
+    def set_param_value(self, param_value):
+        self.param_value = param_value
+        self.setData(self.param_value, Qt.DisplayRole)
+
     def get_param_default_value(self):
         return self.param_default_value
 

@@ -31,10 +31,15 @@ class ParamDelegate(QStyledItemDelegate):
             return QPushButton("Test")
 
     def setEditorData(self, editor, index):
-        pass
+        model = index.model()
+        parameter = model.itemFromIndex(index)
+        if parameter.get_param_type() is ParameterType.INT_PARAM:
+            editor.setValue(parameter.get_param_value())
 
     def setModelData(self, editor, model, index):
-        pass
+        parameter = model.itemFromIndex(index)
+        if parameter.get_param_type() is ParameterType.INT_PARAM:
+            parameter.set_param_value(editor.value())
 
     def updateEditorGeometry(self, editor, option, index):
         editor.setGeometry(option.rect)
