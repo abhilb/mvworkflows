@@ -8,3 +8,7 @@ parameters:
       value: "dummy"
       type: STR_PARAM
       default: "default"
+    - parameter: double_param
+      value: 2.001
+      type: DOUBLE_PARAM
+      default: 3.0

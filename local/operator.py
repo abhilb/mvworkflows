@@ -67,6 +67,9 @@ class Operator(NodeItem):
                     value = bool(value)
                 elif parameter_type is ParameterType.INT_PARAM:
                     value = int(value)
+                elif parameter_type is ParameterType.DOUBLE_PARAM:
+                    value = float(value)
+
                 parameter_item.setData(value, Qt.DisplayRole)
 
 

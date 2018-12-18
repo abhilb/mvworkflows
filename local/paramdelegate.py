@@ -29,6 +29,13 @@ class ParamDelegate(QStyledItemDelegate):
             editor.setMaximum(100)
             editor.setValue(int(parameter_value))
             return editor
+        elif parameter_type is ParameterType.DOUBLE_PARAM:
+            editor = QDoubleSpinBox(parent)
+            editor.setFrame(False)
+            editor.setMinimum(0)
+            editor.setMaximum(10)
+            editor.setValue(parameter_value)
+            return editor
         elif parameter_type is ParameterType.BOOL_PARAM:
             editor = QCheckBox(parent)
             return editor
@@ -45,8 +52,8 @@ class ParamDelegate(QStyledItemDelegate):
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
         parameter_value = parameter.data(Qt.DisplayRole)
-        if parameter_type is ParameterType.INT_PARAM:
-            editor.setValue(int(parameter_value))
+        if parameter_type is ParameterType.INT_PARAM or ParameterType.DOUBLE_PARAM:
+            editor.setValue(parameter_value)
         elif parameter_type is ParameterType.BOOL_PARAM:
             editor.setChecked(parameter_value)
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
@@ -57,7 +64,7 @@ class ParamDelegate(QStyledItemDelegate):
     def setModelData(self, editor, model, index):
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
-        if parameter_type is ParameterType.INT_PARAM:
+        if parameter_type is ParameterType.INT_PARAM or ParameterType.DOUBLE_PARAM:
             parameter.setData(editor.value(), Qt.DisplayRole)
         elif parameter_type is ParameterType.BOOL_PARAM:
             parameter.setData(editor.isChecked(), Qt.DisplayRole)
