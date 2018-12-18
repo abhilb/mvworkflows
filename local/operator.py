@@ -59,11 +59,15 @@ class Operator(NodeItem):
         Raise exception if parameter not found
         """
         row_count = self.parameters.rowCount()
-        print(f"row count : {row_count}")
         for row in range(row_count):
             parameter_name = self.parameters.item(row, 0).text()
             parameter_item = self.parameters.item(row, 1)
             if parameter_name == name:
+                parameter_type = parameter_item.data(Qt.UserRole)
+                if parameter_type is ParameterType.BOOL_PARAM:
+                    value = bool(value)
+                elif parameter_type is ParameterType.INT_PARAM:
+                    value = int(value)
                 parameter_item.setData(value, Qt.DisplayRole)
 
 
