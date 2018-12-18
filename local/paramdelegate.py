@@ -29,6 +29,9 @@ class ParamDelegate(QStyledItemDelegate):
             editor.setMaximum(100)
             editor.setValue(int(parameter_value))
             return editor
+        elif parameter_type is ParameterType.BOOL_PARAM:
+            editor = QCheckBox(parent)
+            return editor
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             editor = QFileDialog(parent)
             editor.setFileMode(QFileDialog.Directory)
@@ -41,6 +44,8 @@ class ParamDelegate(QStyledItemDelegate):
         parameter_value = parameter.data(Qt.DisplayRole)
         if parameter_type is ParameterType.INT_PARAM:
             editor.setValue(int(parameter_value))
+        elif parameter_type is ParameterType.BOOL_PARAM:
+            editor.setChecked(parameter_value)
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             pass
 
@@ -49,6 +54,8 @@ class ParamDelegate(QStyledItemDelegate):
         parameter_type = parameter.data(Qt.UserRole)
         if parameter_type is ParameterType.INT_PARAM:
             parameter.setData(editor.value(), Qt.DisplayRole)
+        elif parameter_type is ParameterType.BOOL_PARAM:
+            parameter.setData(editor.isChecked(), Qt.DisplayRole)
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             selectedFilesList = editor.selectedFiles()
             if selectedFilesList is not None and len(selectedFilesList) > 0:
