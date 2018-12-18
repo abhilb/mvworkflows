@@ -4,4 +4,6 @@ __pycahce__/*
 products
 .ropeproject
 recentfiles.dat
+.session
+*.vim
 
