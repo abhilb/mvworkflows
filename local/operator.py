@@ -29,7 +29,6 @@ class Operator(NodeItem):
         self.parameters = QStandardItemModel()
         self.name = name
         self.template = template
-
         for item in op['parameters']:
             parameter = QStandardItem(item['parameter'])
             parameter_type = ParameterType[item['type']]

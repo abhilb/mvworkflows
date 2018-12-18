@@ -36,6 +36,9 @@ class ParamDelegate(QStyledItemDelegate):
             editor = QFileDialog(parent)
             editor.setFileMode(QFileDialog.Directory)
             return editor
+        elif parameter_type is ParameterType.STR_PARAM:
+            editor = QLineEdit(parent)
+            return editor
 
     def setEditorData(self, editor, index):
         model = index.model()
@@ -48,6 +51,8 @@ class ParamDelegate(QStyledItemDelegate):
             editor.setChecked(parameter_value)
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             pass
+        elif parameter_type is ParameterType.STR_PARAM:
+            editor.setText(parameter_value)
 
     def setModelData(self, editor, model, index):
         parameter = model.itemFromIndex(index)
@@ -61,6 +66,8 @@ class ParamDelegate(QStyledItemDelegate):
             if selectedFilesList is not None and len(selectedFilesList) > 0:
                 selectedFolder = selectedFilesList[0]
                 parameter.setData(selectedFolder, Qt.DisplayRole)
+        elif parameter_type is ParameterType.STR_PARAM:
+            parameter.setData(editor.text(), Qt.DisplayRole)
 
     def updateEditorGeometry(self, editor, option, index):
         model = index.model()

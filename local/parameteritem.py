@@ -7,7 +7,9 @@ from enum import Enum
 class ParameterType(Enum):
     INT_PARAM = 1
     DOUBLE_PARAM = 2
-    FILE_PATH_PARAM =3
+    BOOL_PARAM = 3
+    FILE_PATH_PARAM = 4
+    STR_PARAM = 5
 
 class ParameterItem(QStandardItem):
     """

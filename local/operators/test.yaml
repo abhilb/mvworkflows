@@ -1,0 +1,10 @@
+name: "test"
+parameters:
+    - parameter: bool_param
+      value: True
+      type: BOOL_PARAM
+      default: False
+    - parameter: str_param
+      value: "dummy"
+      type: STR_PARAM
+      default: "default"
