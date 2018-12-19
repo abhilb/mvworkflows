@@ -3,5 +3,6 @@
     <file>icons/actionnode.png</file>
     <file>icons/product.png</file>
     <file>icons/workflow.png</file>
+    <file>icons/save.png</file>
 </qresource>
 </RCC>

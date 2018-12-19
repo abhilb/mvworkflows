@@ -72,7 +72,7 @@ class MainWindow(QMainWindow):
         self.fileMenu = self.menuBar().addMenu("&File")
         self.newProduct = QAction("New Product", triggered=self.addProduct)
         self.openProduct = QAction("Open Product", triggered=self.openProduct)
-        self.saveProduct = QAction("Save Product", triggered=self.saveProduct)
+        self.saveProduct = QAction(QIcon(":icons/save.png"), "Save Product", triggered=self.saveProduct)
 
         self.fileMenu.addAction(self.newProduct)
         self.fileMenu.addAction(self.openProduct)
@@ -110,6 +110,9 @@ class MainWindow(QMainWindow):
         self.helpMenu.addAction(self.aboutAction)
 
         # Tool bar
+        self.file_toolbar = QToolBar(self)
+        self.file_toolbar.addAction(self.saveProduct)
+        self.addToolBar(self.file_toolbar)
 
         # Status bar
         statusBarWidget = QWidget()
