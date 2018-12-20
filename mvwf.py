@@ -70,9 +70,12 @@ class MainWindow(QMainWindow):
 
         # Menu bar
         self.fileMenu = self.menuBar().addMenu("&File")
-        self.newProduct = QAction("New Product", triggered=self.addProduct)
-        self.openProduct = QAction("Open Product", triggered=self.openProduct)
+        self.newProduct = QAction(QIcon(":icons/new.png"), "New Product", triggered=self.addProduct)
+        self.openProduct = QAction(QIcon(":icons/open.png"), "Open Product", triggered=self.openProduct)
         self.saveProduct = QAction(QIcon(":icons/save.png"), "Save Product", triggered=self.saveProduct)
+        self.newProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
+        self.openProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_O))
+        self.saveProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
 
         self.fileMenu.addAction(self.newProduct)
         self.fileMenu.addAction(self.openProduct)
@@ -111,7 +114,12 @@ class MainWindow(QMainWindow):
 
         # Tool bar
         self.file_toolbar = QToolBar(self)
+        self.file_toolbar.setFloatable(False)
+        self.file_toolbar.setMovable(False)
+        self.file_toolbar.addAction(self.newProduct)
+        self.file_toolbar.addAction(self.openProduct)
         self.file_toolbar.addAction(self.saveProduct)
+        self.file_toolbar.addSeparator()
         self.addToolBar(self.file_toolbar)
 
         # Status bar
