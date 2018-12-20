@@ -165,8 +165,15 @@ class MainWindow(QMainWindow):
             filename = action.text()
             logging.info(f"Open the product: {filename}")
             self.product = ProductModel.load_from_file(filename)
+            self.product.itemChanged.connect(self.on_product_changed)
+            self.product.rowsInserted.connect(self.on_product_changed)
+            self.product.rowsRemoved.connect(self.on_product_changed)
+            self.product.rowsMoved.connect(self.on_product_changed)
             self.productExplorer.setModel(self.product)
             self.productExplorer.expandAll()
+
+    def on_product_changed(self, item):
+        logging.info("Product changed")
 
     def show_about_dlg(self):
         msgBox = QMessageBox()
@@ -207,6 +214,10 @@ class MainWindow(QMainWindow):
             self.dockingWidget.show()
         pass
         self.product = ProductModel()
+        self.product.itemChanged.connect(self.on_product_changed)
+        self.product.rowsInserted.connect(self.on_product_changed)
+        self.product.rowsRemoved.connect(self.on_product_changed)
+        self.product.rowsMoved.connect(self.on_product_changed)
         self.productExplorer.setModel(self.product)
 
     def saveProduct(self):
@@ -220,6 +231,10 @@ class MainWindow(QMainWindow):
         if fileName:
             logging.info(f"Opening {fileName}")
             self.product = ProductModel.load_from_file(fileName)
+            self.product.itemChanged.connect(self.on_product_changed)
+            self.product.rowsInserted.connect(self.on_product_changed)
+            self.product.rowsRemoved.connect(self.on_product_changed)
+            self.product.rowsMoved.connect(self.on_product_changed)
             self.productExplorer.setModel(self.product)
             recent_files_list.append(fileName)
 
