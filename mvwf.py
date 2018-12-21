@@ -136,6 +136,7 @@ class MainWindow(QMainWindow):
         # Product Explorer
         self.productExplorer = QTreeView()
         self.productExplorer.setHeaderHidden(True)
+        self.productExplorer.setContextMenuPolicy(Qt.DefaultContextMenu)
         self.productExplorer.clicked.connect(self.product_item_selected)
         self.dockingWidget = QDockWidget("Product explorer", self)
         self.dockingWidget.setWidget(self.productExplorer)
@@ -152,6 +153,26 @@ class MainWindow(QMainWindow):
         self.configIsOpen = False
         self.configTabIndex = -1
         self.product = InvalidProduct()
+
+    def contextMenuEvent(self, event):
+        selectedIndexes = self.productExplorer.selectedIndexes()
+        if len(selectedIndexes) == 0:
+            logging.info("Nothing is selected in the product explorer")
+            return
+
+        model = selectedIndexes[0].model()
+        item = model.itemFromIndex(selectedIndexes[0])
+
+        context_menu = QMenu(self)
+        if item.node_type == NodeType.WORKFLOW:
+            context_menu.addAction(self.addOperatorAction)
+        elif item.node_type == NodeType.PRODUCT:
+            context_menu.addAction(self.newWorkflow)
+        else:
+            logging.info("Selected item is neither a workflow nor product")
+            return
+
+        context_menu.exec_(self.mapToGlobal(event.pos()))
 
     def product_item_selected(self, index):
         model = index.model()
