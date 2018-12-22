@@ -249,7 +249,7 @@ class MainWindow(QMainWindow):
             pass
 
     def openProduct(self):
-        fileName, _ = QFileDialog.getOpenFileName(self)
+        fileName, _ = QFileDialog.getOpenFileName(self, filter="*.json")
         if fileName:
             logging.info(f"Opening {fileName}")
             self.product = ProductModel.load_from_file(fileName)
