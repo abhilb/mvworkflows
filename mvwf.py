@@ -5,6 +5,7 @@ import yaml
 import re
 import json
 import pickle
+
 import logging
 logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
 
@@ -91,11 +92,11 @@ class MainWindow(QMainWindow):
             self.recentFilesMenu.addAction(action)
 
         self.productMenu = self.menuBar().addMenu("&Product")
-        self.newWorkflow = QAction("Add Workflow", triggered=self.addWorkflow)
+        self.newWorkflow = QAction(QIcon(":/icons/workflow.png"),"Add Workflow", triggered=self.addWorkflow)
         self.productMenu.addAction(self.newWorkflow)
 
         self.operatorMenu = self.menuBar().addMenu("&Operator")
-        self.addOperatorAction = QAction("Add Operator", triggered=self.addOperator)
+        self.addOperatorAction = QAction(QIcon(":/icons/actionnode.png"),"Add Operator", triggered=self.addOperator)
         self.operatorMenu.addAction(self.addOperatorAction)
 
         self.settingsMenu = self.menuBar().addMenu("&Settings")
