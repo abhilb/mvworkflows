@@ -7,7 +7,8 @@ import json
 import pickle
 
 import logging
-logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logging.basicConfig(format=LOG_FORMAT, level="INFO")
 
 # qt imports
 from PyQt5.QtWidgets import *
@@ -48,11 +49,9 @@ def app_init():
 
     # Load the recently opened products list
     global recent_files_list
-
     if os.path.exists("recentfiles.dat"):
         with open("recentfiles.dat", "rb") as f:
             recent_files_list = pickle.load(f)
-    print(recent_files_list)
 
 class MainWindow(QMainWindow):
     MAX_RECENT_FILES_COUNT = 5
@@ -61,9 +60,7 @@ class MainWindow(QMainWindow):
     """
     def __init__(self, parent=None):
         super().__init__(parent)
-
         app_init()
-        print(recent_files_list)
 
         # Set window title and geometry
         self.setWindowTitle("Machine Vision Workflows")
@@ -85,7 +82,6 @@ class MainWindow(QMainWindow):
         self.recentFilesMenu = self.fileMenu.addMenu("Recent Products")
         self.recentFileActions = []
         for item in recent_files_list:
-            logging.info(f"Adding this to the recent file actions : {item}")
             self.recentFileActions.append(QAction(item, triggered=self.openRecentFile))
 
         for action in self.recentFileActions:
@@ -182,6 +178,7 @@ class MainWindow(QMainWindow):
             self.operatorEditor.setModel(item.parameters)
 
     def openRecentFile(self):
+        """ Slot for the open recent file action """
         action = self.sender()
         if action:
             filename = action.text()
@@ -195,9 +192,11 @@ class MainWindow(QMainWindow):
             self.productExplorer.expandAll()
 
     def on_product_changed(self, item):
+        """ Slot to track product changes """
         logging.info("Product changed")
 
     def show_about_dlg(self):
+        """ Show the about dialog """
         msgBox = QMessageBox()
         msgBox.setIcon(QMessageBox.Information)
         msgBox.setWindowTitle("About")
@@ -207,22 +206,26 @@ class MainWindow(QMainWindow):
         msgBox.exec_()
 
     def show_product_explorer(self):
+        """ Show the product exeplorer """
         logging.info("Show product explorer")
         if self.dockingWidget:
             self.dockingWidget.setVisible(True)
 
     def show_operator_editor(self):
+        """ Show the operator editor """
         logging.info("Show operator editor")
         if self.operatorEditorDock:
             self.operatorEditorDock.setVisible(True)
 
     def closeEvent(self, event):
+        """ Slot for the application close event """
         logging.info("Application close event")
         with open("recentfiles.dat", "wb") as f:
             pickle.dump(recent_files_list, f)
         QCloseEvent(event)
 
     def onTabClose(self, index):
+        """ Slot for tab close event """
         if index == self.configTabIndex:
             self.configIsOpen = False
             self.configTabIndex = -1
@@ -289,6 +292,7 @@ class MainWindow(QMainWindow):
                     node.add_operator(operator)
 
     def showConfig(self):
+        """ Show the application config """
         if not self.configIsOpen:
             configTable = QTableView()
             centralWidget = self.centralWidget()
