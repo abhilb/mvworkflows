@@ -258,6 +258,8 @@ class MainWindow(QMainWindow):
             self.product.rowsRemoved.connect(self.on_product_changed)
             self.product.rowsMoved.connect(self.on_product_changed)
             self.productExplorer.setModel(self.product)
+            if fileName in recent_files_list:
+                recent_files_list.remove(fileName)
             recent_files_list.append(fileName)
 
     def addWorkflow(self):
