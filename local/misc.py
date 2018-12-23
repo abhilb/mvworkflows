@@ -1,5 +1,4 @@
-
-
+import re
 
 def get_unique_name(names_list, name_template):
     pattern = re.compile(r"\w+_(\d+)")
