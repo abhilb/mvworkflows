@@ -229,7 +229,7 @@ class MainWindow(QMainWindow):
         self.centralWidget().removeTab(index)
 
     def addProduct(self):
-        logging.info("Adding a new product")
+        """ Add a new product """
         if self.dockingWidget.isVisible():
             pass
         else:
@@ -243,12 +243,14 @@ class MainWindow(QMainWindow):
         self.productExplorer.setModel(self.product)
 
     def saveProduct(self):
+        """ Save the currently open product """
         if self.product.isValid():
             self.product.save()
         else:
             pass
 
     def openProduct(self):
+        """ Open a product """
         fileName, _ = QFileDialog.getOpenFileName(self, filter="*.json")
         if fileName:
             logging.info(f"Opening {fileName}")
@@ -263,6 +265,7 @@ class MainWindow(QMainWindow):
             recent_files_list.append(fileName)
 
     def addWorkflow(self):
+        """ Add a workflow to the currently open product """
         if self.product.isValid():
             logging.info("Adding a new workflow")
             self.product.add_workflow()
@@ -270,6 +273,7 @@ class MainWindow(QMainWindow):
             pass
 
     def addOperator(self):
+        """ Add an operator to the currently selected workflow """
         if self.product.isValid():
             selectionModel = self.productExplorer.selectionModel()
             currentIndex = selectionModel.currentIndex()
