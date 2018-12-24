@@ -110,6 +110,9 @@ class MainWindow(QMainWindow):
         self.helpMenu.addAction(self.aboutQtAction)
         self.helpMenu.addAction(self.aboutAction)
 
+        self.undo_change_action = QAction(QIcon(":icons/undo.png"), "Undo change", triggered=self.undo_change)
+        self.redo_change_action = QAction(QIcon(":icons/redo.png"), "Redo change", triggered=self.redo_change)
+
         # Tool bar
         self.file_toolbar = QToolBar(self)
         self.file_toolbar.setFloatable(False)
@@ -117,6 +120,9 @@ class MainWindow(QMainWindow):
         self.file_toolbar.addAction(self.newProduct)
         self.file_toolbar.addAction(self.openProduct)
         self.file_toolbar.addAction(self.saveProduct)
+        self.file_toolbar.addSeparator()
+        self.file_toolbar.addAction(self.undo_change_action)
+        self.file_toolbar.addAction(self.redo_change_action)
         self.file_toolbar.addSeparator()
         self.addToolBar(self.file_toolbar)
 
@@ -206,6 +212,16 @@ class MainWindow(QMainWindow):
             self.change_manager.ignore_changes = True
             self.product = self.change_manager.redo(self.product)
             self.change_manager.ignore_changes = False
+
+    def undo_change(self):
+        self.change_manager.ignore_changes = True
+        self.product = self.change_manager.undo(self.product)
+        self.change_manager.ignore_changes = False
+
+    def redo_change(self):
+        self.change_manager.ignore_changes = True
+        self.product = self.change_manager.redo(self.product)
+        self.change_manager.ignore_changes = False
 
     def on_product_changed(self, item):
         """ Slot to track product changes """
