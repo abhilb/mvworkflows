@@ -17,6 +17,7 @@ from local import resources
 from local.node import NodeItem, NodeType
 from local.workflow import Workflow
 from local.operator import Operator
+from local.misc import get_unique_name
 
 class Product(NodeItem):
     def __init__(self, name=None):
@@ -30,9 +31,29 @@ class ProductModel(QStandardItemModel):
         self.root = Product(productName)
         self.appendRow(self.root)
 
+    @property
+    def state(self):
+        """ Save the product state for pickling """
+        return self.save()
+
+    @state.setter
+    def state(self, state):
+        """ Set the state of the product from json data """
+        self.load(state)
+
     def add_workflow(self, workflow = None):
-        w = Workflow() if workflow is None else workflow
-        self.root.appendRow(w)
+        num_of_workflows = self.root.rowCount()
+        wf_names_list = []
+        for row in range(num_of_workflows):
+            wf_name = self.root.child(row).text()
+            wf_names_list.append(wf_name)
+
+        if workflow is None:
+            workflow_name = get_unique_name(wf_names_list, "Workflow")
+            w = Workflow(workflow_name)
+            self.root.appendRow(w)
+        else:
+            self.root.appendRow(workflow)
 
     def isValid(self):
         return True
@@ -55,10 +76,19 @@ class ProductModel(QStandardItemModel):
         else:
             logging.info("Product has NO workflows")
             product['workflows'] = []
+        return product
 
-        filename = productName + ".json"
-        with open(filename, "w") as f:
-            json.dump(product, f, indent=4)
+    def clear_data(self):
+        self.clear()
+
+    def load(self, json_data):
+        """Update the  model data from json"""
+        self.clear()
+        self.root = Product(json_data['name'])
+        self.appendRow(self.root)
+        workflows = json_data['workflows']
+        for w in workflows:
+            self.add_workflow(Workflow.load(w))
 
     @staticmethod
     def load_from_file(filename):

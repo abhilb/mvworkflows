@@ -20,6 +20,7 @@ from PyQt5.QtGui import *
 from local.product import *
 from local import Operators
 from local.paramdelegate import ParamDelegate
+from changemanager import ChangeManager
 
 # globals
 config = {}
@@ -151,6 +152,8 @@ class MainWindow(QMainWindow):
         self.configTabIndex = -1
         self.product = InvalidProduct()
 
+        self.change_manager = ChangeManager()
+
     def contextMenuEvent(self, event):
         selectedIndexes = self.productExplorer.selectedIndexes()
         if len(selectedIndexes) == 0:
@@ -191,9 +194,23 @@ class MainWindow(QMainWindow):
             self.productExplorer.setModel(self.product)
             self.productExplorer.expandAll()
 
+    def keyPressEvent(self, event):
+        """ Handle key press events """
+        if event.key() == Qt.Key_Z and event.modifiers() == Qt.ControlModifier:
+            logging.info("Undo")
+            self.change_manager.ignore_changes = True
+            self.product = self.change_manager.undo(self.product)
+            self.change_manager.ignore_changes = False
+        elif event.key() == Qt.Key_Y and event.modifiers() == Qt.ControlModifier:
+            logging.info("Redo")
+            self.change_manager.ignore_changes = True
+            self.product = self.change_manager.redo(self.product)
+            self.change_manager.ignore_changes = False
+
     def on_product_changed(self, item):
         """ Slot to track product changes """
         logging.info("Product changed")
+        self.change_manager.save_state(self.product)
 
     def show_about_dlg(self):
         """ Show the about dialog """
@@ -244,11 +261,18 @@ class MainWindow(QMainWindow):
         self.product.rowsRemoved.connect(self.on_product_changed)
         self.product.rowsMoved.connect(self.on_product_changed)
         self.productExplorer.setModel(self.product)
+        self.change_manager.save_state(self.product)
 
     def saveProduct(self):
         """ Save the currently open product """
         if self.product.isValid():
-            self.product.save()
+            product_json = self.product.save()
+            prodcut_name = product_json['name']
+            filename = product_name + ".json"
+            with open(filename, "w") as f:
+                json.dump(product_json, f, indent=4)
+
+            self.change_manager.clear()
         else:
             pass
 
@@ -272,6 +296,7 @@ class MainWindow(QMainWindow):
         if self.product.isValid():
             logging.info("Adding a new workflow")
             self.product.add_workflow()
+            self.productExplorer.expandAll()
         else:
             pass
 
@@ -290,6 +315,7 @@ class MainWindow(QMainWindow):
                                                         Operators.keys(),
                                                         0, False)
                     node.add_operator(operator)
+                    self.productExplorer.expandAll()
 
     def showConfig(self):
         """ Show the application config """
