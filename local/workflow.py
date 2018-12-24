@@ -4,15 +4,32 @@ import logging
 from local.node import NodeType, NodeItem
 from local.operatorfactory import *
 from local.operator import Operator
-from local.operatorfactory import OperatorFactory
+from local.misc import get_unique_name
 
 class Workflow(NodeItem):
-    def __init__(self, name=None):
-        workflowName = name if name is not None else "new_workflow"
+    def __init__(self, workflowName):
         super().__init__(workflowName, QIcon(":/icons/workflow.png"),
                          NodeType.WORKFLOW)
         logging.info(f"{workflowName} Workflow created")
         self.operatorNames = []
+        self.image_providers = []
+        self.feature_providers = []
+        self.number_providers = []
+        self.number_list_providers = []
+        self.string_providers = []
+
+    def _add_operator(self, operator):
+        self.appendRow(operator)
+        if operator.is_image_provider():
+            self.image_providers.append(operator.uuid)
+        if operator.is_feature_provider():
+            self.feature_providers.append(operator.uuid)
+        if operator.is_number_provider():
+            self.number_provders.append(operator.uuid)
+        if operator.is_number_list_provider():
+            self.number_list_provders.append(operator.uuid)
+        if operator.is_string_provider():
+            self.string_providers.append(operator.uuid)
 
     def save(self):
         logging.info("Saving the workflow")
@@ -36,13 +53,13 @@ class Workflow(NodeItem):
         operators = data['operators']
         for op in operators:
             operator = Operator.from_json(op)
-            wf.appendRow(operator)
+            wf._add_operator(operator)
             wf.operatorNames.append(operator.name)
         return wf
 
     def add_operator(self, template):
         logging.info(f"[Workflow] adding operator")
-        name = OperatorFactory.get_unique_name(self.operatorNames, template)
+        name = get_unique_name(self.operatorNames, template)
         logging.info(f"Operator name is {name}")
-        self.appendRow(Operator(template, name))
+        self._add_operator(Operator(template, name))
         self.operatorNames.append(name)

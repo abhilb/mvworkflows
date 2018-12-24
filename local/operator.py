@@ -25,10 +25,19 @@ class Operator(NodeItem):
     def __init__(self, template, name=None):
         super().__init__(name, QIcon(":icons/actionnode.png"),
                          NodeType.OPERATOR)
+        self._uuid = uuid.uuid4()
         op = Operators[template]
         self.parameters = QStandardItemModel()
         self.name = name
         self.template = template
+
+        # Operator properties
+        self._number_provider = False
+        self._number_list_provider = False
+        self._image_provider = False
+        self._string_provider = False
+        self._feature_provider = False
+
         for item in op['parameters']:
             parameter = QStandardItem(item['parameter'])
             parameter_type = ParameterType[item['type']]
@@ -63,7 +72,9 @@ class Operator(NodeItem):
             parameter_item = self.parameters.item(row, 1)
             if parameter_name == name:
                 parameter_type = parameter_item.data(Qt.UserRole)
+                print(f"{parameter_name} {parameter_type}")
                 if parameter_type is ParameterType.BOOL_PARAM:
+                    parameter_item.setCheckable(True)
                     value = bool(value)
                 elif parameter_type is ParameterType.INT_PARAM:
                     value = int(value)
@@ -72,32 +83,37 @@ class Operator(NodeItem):
 
                 parameter_item.setData(value, Qt.DisplayRole)
 
-
-    def has_result(self):
-        """
-        Returns True or False based on if there is
-        result available for this operator. When the Operator
-        Model is changed then the Result has to be reset.
-        This API can be used by the viewer to display the
-        result of the operator.
-        """
-        pass
-
     def is_number_provider(self):
-        pass
+        """ Operator provides a number as output """
+        return self._number_provider
 
     def is_number_list_provider(self):
-        pass
+        """ Operator provides a list of numbers as output """
+        return self._number_list_provider
 
     def is_2d_feature_provider(self):
-        pass
+        """ Operator provides a feature as output """
+        return self._feature_provider
 
     def is_image_provider(self):
-        """
-        Returns True if this operator is an image provider
-        Operator.
-        """
-        pass
+        """ Operator provides an image as output """
+        return self._image_provider
+
+    def is_feature_provider(self):
+        """ Operator provides a feature as output """
+        return self._feature_provider
+
+    def is_string_provider(self):
+        """ Operator provides a string as output """
+        return self._string_provider
+
+    @property
+    def uuid(self):
+        return self._uuid
+
+    @uuid.setter
+    def uuid(self, uuid_):
+        self._uuid = uuid_
 
     @staticmethod
     def from_json(data):
@@ -112,10 +128,25 @@ class Operator(NodeItem):
                 operator_parameter[key] = data[key]
             operator_type = data['operator']
             operator_name = data['name']
+            operator_id = data['id']
+
+            # Check if number provider
+            if 'number_provider' in data.keys():
+                self.is_number_provider = data['number_provider']
+
+            # Check if number list provider
+            if 'number_list_provider' in data.keys():
+                self.is_number_list_provider = data['number_list_provider']
+
+            # Check if image provider
+            if 'image_provider' in data.keys():
+                self.is_image_provider = data['image_provider']
+
         except KeyError as e:
             logging.error("Failed to load operator from json - key error")
         else:
             operator = Operator(operator_type, operator_name)
+            operator.id = operator_id
             for parameter, value in operator_parameter.items():
                 operator.set_parameter(parameter, value)
             return operator
@@ -126,6 +157,7 @@ class Operator(NodeItem):
         ret = {}
         ret['operator'] = self.template
         ret['name'] = self.name
+        ret['id'] = self.uuid
         for row in range(self.parameters.rowCount()):
             parameter_index = self.parameters.index(row, 0)
             value_index = self.parameters.index(row, 1)
