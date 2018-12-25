@@ -136,7 +136,8 @@ class MainWindow(QMainWindow):
         # Status bar
         statusBarWidget = QWidget()
         statusBarWidget.setLayout(QHBoxLayout())
-        statusBarWidget.layout().addWidget(QLabel("Machine Vision Workflows"))
+        statusBarWidget.layout().addWidget(QLabel("<b>Machine Vision Workflows</b>"))
+        statusBarWidget.layout().addWidget(QLabel("Created by <em>Abhilash Babu J</em>"))
         self.statusBar().addPermanentWidget(statusBarWidget)
 
         self.setCentralWidget(QTabWidget())
