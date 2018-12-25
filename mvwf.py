@@ -5,6 +5,7 @@ import yaml
 import re
 import json
 import pickle
+import zmq
 
 import logging
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -26,6 +27,7 @@ from changemanager import ChangeManager
 config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
+context = zmq.Context()
 
 def app_init():
     """
@@ -114,6 +116,7 @@ class MainWindow(QMainWindow):
         self.undo_change_action.setEnabled(False)
         self.redo_change_action = QAction(QIcon(":icons/redo.png"), "Redo change", triggered=self.redo_change)
         self.redo_change_action.setEnabled(False)
+        self.execute_action = QAction(QIcon(":icons/execute.png"), "Execute", triggered=self.execute)
 
         # Tool bar
         self.file_toolbar = QToolBar(self)
@@ -125,6 +128,8 @@ class MainWindow(QMainWindow):
         self.file_toolbar.addSeparator()
         self.file_toolbar.addAction(self.undo_change_action)
         self.file_toolbar.addAction(self.redo_change_action)
+        self.file_toolbar.addSeparator()
+        self.file_toolbar.addAction(self.execute_action)
         self.file_toolbar.addSeparator()
         self.addToolBar(self.file_toolbar)
 
@@ -183,6 +188,9 @@ class MainWindow(QMainWindow):
 
         context_menu.exec_(self.mapToGlobal(event.pos()))
 
+    def execute(self):
+        pass
+
     def update_undo_redo(self):
         self.undo_change_action.setEnabled(self.change_manager.is_undo_possible())
         self.redo_change_action.setEnabled(self.change_manager.is_redo_possible())
@@ -239,11 +247,18 @@ class MainWindow(QMainWindow):
 
     def show_about_dlg(self):
         """ Show the about dialog """
-        msgBox = QMessageBox()
-        msgBox.setIcon(QMessageBox.Information)
+        msgBox = QMessageBox(self)
+        msgBox.setIconPixmap(QIcon(":/icons/product.png").pixmap(QSize(64,64)))
         msgBox.setWindowTitle("About")
-        msgBox.setText("Machine Vision Workflows")
-        msgBox.setInformativeText("v.0.0.1")
+        msgBox.setText("""
+        <h1>Machine Vision Workflows</h1>
+        <br/>
+        <h3>Version : v.0.0.1</h3>
+        """)
+        msgBox.setTextFormat(Qt.RichText)
+        msgBox.setInformativeText("""
+        icon source: www.flaticon.com, www.iconfinder.com
+        """)
         msgBox.setStandardButtons(QMessageBox.Ok)
         msgBox.exec_()
 
@@ -262,8 +277,15 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """ Slot for the application close event """
         logging.info("Application close event")
+
+        # Closethe zmq socket
+        context.destroy()
+
+        # Add the currently open product to recent files list
         with open("recentfiles.dat", "wb") as f:
             pickle.dump(recent_files_list, f)
+
+        # Continue with the close event
         QCloseEvent(event)
 
     def onTabClose(self, index):
