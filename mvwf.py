@@ -14,7 +14,7 @@ logging.basicConfig(format=LOG_FORMAT, level="INFO")
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-#import qdarkstyle
+import qdarkstyle
 
 # Local imports
 from local.product import *
@@ -159,6 +159,7 @@ class MainWindow(QMainWindow):
         self.product = InvalidProduct()
 
         self.change_manager = ChangeManager()
+        self.change_manager.index_changed.connect(self.update_undo_redo)
 
     def contextMenuEvent(self, event):
         selectedIndexes = self.productExplorer.selectedIndexes()
@@ -179,6 +180,10 @@ class MainWindow(QMainWindow):
             return
 
         context_menu.exec_(self.mapToGlobal(event.pos()))
+
+    def update_undo_redo(self):
+        self.undo_change_action.setEnabled(self.change_manager.is_undo_possible())
+        self.redo_change_action.setEnabled(self.change_manager.is_redo_possible())
 
     def product_item_selected(self, index):
         model = index.model()
@@ -354,7 +359,7 @@ class MainWindow(QMainWindow):
             self.configIsOpen = True
 
 if __name__ == "__main__":
-    #app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     mainWindow = MainWindow()
     mainWindow.show()
     sys.exit(app.exec_())

@@ -1,9 +1,13 @@
 import pickle
-from collections import deque
+from PyQt5.QtCore import pyqtSignal, QObject
 
-class ChangeManager():
+class ChangeManager(QObject):
     """ Manages and undo and redo of product changes """
+
+    index_changed = pyqtSignal()
+
     def __init__(self):
+        super().__init__()
         self.snapshots = []
         self.current_index = -1
         self._ignore = False
@@ -17,6 +21,12 @@ class ChangeManager():
     def ignore_changes(self, value):
         self._ignore = value
 
+    def is_undo_possible(self):
+        return self.current_index > 0
+
+    def is_redo_possible(self):
+        return (len(self.snapshots) - self.current_index) > 1
+
     def save_state(self, product):
         if self.ignore_changes:
             return
@@ -25,7 +35,7 @@ class ChangeManager():
         data = pickle.dumps(product.state)
         self.snapshots.append(data)
         self.current_index += 1
-        print(f"change_manager: current_index: {self.current_index}")
+        self.index_changed.emit()
 
     def undo(self, product):
         """ Roll back the state of the product """
@@ -35,7 +45,7 @@ class ChangeManager():
             product.state = data
         else:
             self.current_index = -1
-        print(f"change_manager: current_index: {self.current_index}")
+        self.index_changed.emit()
         return product
 
     def redo(self, product):
@@ -45,7 +55,7 @@ class ChangeManager():
             product.state = data
         else:
             self.current_index = len(self.snapshots) - 1
-        print(f"change_manager: current_index: {self.current_index}")
+        self.index_changed.emit()
         return product
 
     def clear(self):
