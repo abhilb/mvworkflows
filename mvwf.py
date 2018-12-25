@@ -14,7 +14,7 @@ logging.basicConfig(format=LOG_FORMAT, level="INFO")
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
-import qdarkstyle
+#import qdarkstyle
 
 # Local imports
 from local.product import *
@@ -83,7 +83,7 @@ class MainWindow(QMainWindow):
         self.recentFilesMenu = self.fileMenu.addMenu("Recent Products")
         self.recentFileActions = []
         for item in recent_files_list:
-            self.recentFileActions.append(QAction(item, triggered=self.openRecentFile))
+            self.recentFileActions.append(QAction(QIcon(":icons/product.png"), item, triggered=self.openRecentFile))
 
         for action in self.recentFileActions:
             self.recentFilesMenu.addAction(action)
@@ -111,7 +111,9 @@ class MainWindow(QMainWindow):
         self.helpMenu.addAction(self.aboutAction)
 
         self.undo_change_action = QAction(QIcon(":icons/undo.png"), "Undo change", triggered=self.undo_change)
+        self.undo_change_action.setEnabled(False)
         self.redo_change_action = QAction(QIcon(":icons/redo.png"), "Redo change", triggered=self.redo_change)
+        self.redo_change_action.setEnabled(False)
 
         # Tool bar
         self.file_toolbar = QToolBar(self)
@@ -208,25 +210,27 @@ class MainWindow(QMainWindow):
     def keyPressEvent(self, event):
         """ Handle key press events """
         if event.key() == Qt.Key_Z and event.modifiers() == Qt.ControlModifier:
-            logging.info("Undo")
-            self.change_manager.ignore_changes = True
-            self.product = self.change_manager.undo(self.product)
-            self.change_manager.ignore_changes = False
+            if self.change_manager.is_undo_possible():
+                self.change_manager.ignore_changes = True
+                self.product = self.change_manager.undo(self.product)
+                self.change_manager.ignore_changes = False
         elif event.key() == Qt.Key_Y and event.modifiers() == Qt.ControlModifier:
-            logging.info("Redo")
-            self.change_manager.ignore_changes = True
-            self.product = self.change_manager.redo(self.product)
-            self.change_manager.ignore_changes = False
+            if self.change_manager.is_redo_possible():
+                self.change_manager.ignore_changes = True
+                self.product = self.change_manager.redo(self.product)
+                self.change_manager.ignore_changes = False
 
     def undo_change(self):
         self.change_manager.ignore_changes = True
         self.product = self.change_manager.undo(self.product)
         self.change_manager.ignore_changes = False
+        self.productExplorer.expandAll()
 
     def redo_change(self):
         self.change_manager.ignore_changes = True
         self.product = self.change_manager.redo(self.product)
         self.change_manager.ignore_changes = False
+        self.productExplorer.expandAll()
 
     def on_product_changed(self, item):
         """ Slot to track product changes """
@@ -359,7 +363,7 @@ class MainWindow(QMainWindow):
             self.configIsOpen = True
 
 if __name__ == "__main__":
-    app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    #app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
     mainWindow = MainWindow()
     mainWindow.show()
     sys.exit(app.exec_())
