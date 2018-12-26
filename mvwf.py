@@ -341,7 +341,7 @@ class MainWindow(QMainWindow):
         """ Save the currently open product """
         if self.product.isValid():
             product_json = self.product.save()
-            prodcut_name = product_json['name']
+            product_name = product_json['name']
             filename = product_name + ".json"
             with open(filename, "w") as f:
                 json.dump(product_json, f, indent=4)
