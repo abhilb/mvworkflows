@@ -28,6 +28,11 @@ config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
 context = zmq.Context()
+sock = context.socket(zmq.REQ)
+sock.connect("tcp://localhost:5555")
+sock.send(b'test')
+message = sock.recv()
+connected = True if message == 'test' else False
 
 def app_init():
     """
@@ -90,13 +95,11 @@ class MainWindow(QMainWindow):
         for action in self.recentFileActions:
             self.recentFilesMenu.addAction(action)
 
-        self.productMenu = self.menuBar().addMenu("&Product")
+        self.editMenu = self.menuBar().addMenu("&Edit")
         self.newWorkflow = QAction(QIcon(":/icons/workflow.png"),"Add Workflow", triggered=self.addWorkflow)
-        self.productMenu.addAction(self.newWorkflow)
-
-        self.operatorMenu = self.menuBar().addMenu("&Operator")
         self.addOperatorAction = QAction(QIcon(":/icons/actionnode.png"),"Add Operator", triggered=self.addOperator)
-        self.operatorMenu.addAction(self.addOperatorAction)
+        self.editMenu.addAction(self.newWorkflow)
+        self.editMenu.addAction(self.addOperatorAction)
 
         self.settingsMenu = self.menuBar().addMenu("&Settings")
         self.showConfig = QAction("Show Config", triggered=self.showConfig)
