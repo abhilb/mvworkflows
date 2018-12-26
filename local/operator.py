@@ -108,12 +108,12 @@ class Operator(NodeItem):
         return self._string_provider
 
     @property
-    def uuid(self):
-        return self._uuid
+    def id(self):
+        return str(self._uuid)
 
-    @uuid.setter
-    def uuid(self, uuid_):
-        self._uuid = uuid_
+    @id.setter
+    def id(self, uuid_):
+        self._uuid = uuid.UUID(uuid_)
 
     @staticmethod
     def from_json(data):
@@ -157,7 +157,7 @@ class Operator(NodeItem):
         ret = {}
         ret['operator'] = self.template
         ret['name'] = self.name
-        ret['id'] = self.uuid
+        ret['id'] = self.id
         for row in range(self.parameters.rowCount()):
             parameter_index = self.parameters.index(row, 0)
             value_index = self.parameters.index(row, 1)
