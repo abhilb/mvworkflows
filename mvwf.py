@@ -74,46 +74,23 @@ class MainWindow(QMainWindow):
         self.setWindowTitle("Machine Vision Workflows")
         self.setGeometry(0, 0, 1024, 800)
 
-        # Menu bar
-        self.fileMenu = self.menuBar().addMenu("&File")
+        ##############
+        # Actions
+        ##############
         self.newProduct = QAction(QIcon(":icons/new.png"), "New Product", triggered=self.addProduct)
         self.openProduct = QAction(QIcon(":icons/open.png"), "Open Product", triggered=self.openProduct)
         self.saveProduct = QAction(QIcon(":icons/save.png"), "Save Product", triggered=self.saveProduct)
-        self.newProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
-        self.openProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_O))
-        self.saveProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
-
-        self.fileMenu.addAction(self.newProduct)
-        self.fileMenu.addAction(self.openProduct)
-        self.fileMenu.addAction(self.saveProduct)
-        self.fileMenu.addSeparator()
-        self.recentFilesMenu = self.fileMenu.addMenu("Recent Products")
-        self.recentFileActions = []
-        for item in recent_files_list:
-            self.recentFileActions.append(QAction(QIcon(":icons/product.png"), item, triggered=self.openRecentFile))
-
-        for action in self.recentFileActions:
-            self.recentFilesMenu.addAction(action)
-
-        self.editMenu = self.menuBar().addMenu("&Edit")
         self.newWorkflow = QAction(QIcon(":/icons/workflow.png"),"Add Workflow", triggered=self.addWorkflow)
         self.addOperatorAction = QAction(QIcon(":/icons/actionnode.png"),"Add Operator", triggered=self.addOperator)
-        self.editMenu.addAction(self.newWorkflow)
-        self.editMenu.addAction(self.addOperatorAction)
-
-        self.settingsMenu = self.menuBar().addMenu("&Settings")
         self.showConfig = QAction("Show Config", triggered=self.showConfig)
         self.showProductExplorer = QAction("Show Product Explorer", triggered=self.show_product_explorer)
         self.showOperatorEditor = QAction("Show Operator Editor", triggered=self.show_operator_editor)
-        self.settingsMenu.addAction(self.showConfig)
-        self.settingsMenu.addAction(self.showProductExplorer)
-        self.settingsMenu.addAction(self.showOperatorEditor)
-
-        self.helpMenu = self.menuBar().addMenu("&Help")
         self.aboutQtAction = QAction("About Qt", triggered=QApplication.aboutQt)
         self.aboutAction = QAction("About", triggered=self.show_about_dlg)
-        self.helpMenu.addAction(self.aboutQtAction)
-        self.helpMenu.addAction(self.aboutAction)
+        self.recentFileActions = []
+        for item in recent_files_list:
+            self.recentFileActions.append(QAction(QIcon(":icons/product.png"),
+                item, triggered=self.openRecentFile))
 
         self.undo_change_action = QAction(QIcon(":icons/undo.png"), "Undo change", triggered=self.undo_change)
         self.undo_change_action.setEnabled(False)
@@ -121,7 +98,41 @@ class MainWindow(QMainWindow):
         self.redo_change_action.setEnabled(False)
         self.execute_action = QAction(QIcon(":icons/execute.png"), "Execute", triggered=self.execute)
 
+        # Action short cuts
+        self.newProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
+        self.openProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_O))
+        self.saveProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
+
+
+        ###############
+        # Menu bar
+        ###############
+        self.fileMenu = self.menuBar().addMenu("&File")
+        self.fileMenu.addAction(self.newProduct)
+        self.fileMenu.addAction(self.openProduct)
+        self.fileMenu.addAction(self.saveProduct)
+        self.fileMenu.addSeparator()
+        self.recentFilesMenu = self.fileMenu.addMenu("Recent Products")
+
+        for action in self.recentFileActions:
+            self.recentFilesMenu.addAction(action)
+
+        self.editMenu = self.menuBar().addMenu("&Edit")
+        self.editMenu.addAction(self.newWorkflow)
+        self.editMenu.addAction(self.addOperatorAction)
+
+        self.settingsMenu = self.menuBar().addMenu("&Settings")
+        self.settingsMenu.addAction(self.showConfig)
+        self.settingsMenu.addAction(self.showProductExplorer)
+        self.settingsMenu.addAction(self.showOperatorEditor)
+
+        self.helpMenu = self.menuBar().addMenu("&Help")
+        self.helpMenu.addAction(self.aboutQtAction)
+        self.helpMenu.addAction(self.aboutAction)
+
+        ###############
         # Tool bar
+        ###############
         self.file_toolbar = QToolBar(self)
         self.file_toolbar.setFloatable(False)
         self.file_toolbar.setMovable(False)
@@ -136,7 +147,9 @@ class MainWindow(QMainWindow):
         self.file_toolbar.addSeparator()
         self.addToolBar(self.file_toolbar)
 
+        ###############
         # Status bar
+        ###############
         statusBarWidget = QWidget()
         statusBarWidget.setLayout(QHBoxLayout())
         statusBarWidget.layout().addWidget(QLabel("<b>Machine Vision Workflows</b>"))
@@ -173,6 +186,11 @@ class MainWindow(QMainWindow):
         self.change_manager.index_changed.connect(self.update_undo_redo)
 
     def contextMenuEvent(self, event):
+        """
+        @override
+        Overrides the context menu event. Handles the context menu for items
+        in the product explorer widget
+        """
         selectedIndexes = self.productExplorer.selectedIndexes()
         if len(selectedIndexes) == 0:
             logging.info("Nothing is selected in the product explorer")
@@ -196,10 +214,15 @@ class MainWindow(QMainWindow):
         pass
 
     def update_undo_redo(self):
+        """ Enable/Disable the undo and redo buttons based on if undo/redo is possible """
         self.undo_change_action.setEnabled(self.change_manager.is_undo_possible())
         self.redo_change_action.setEnabled(self.change_manager.is_redo_possible())
 
     def product_item_selected(self, index):
+        """
+        Set the model for the operator editor based on the operator selected
+        based on the operator selected in the Product explorer
+        """
         model = index.model()
         item = model.itemFromIndex(index)
         if item.node_type == NodeType.OPERATOR:
