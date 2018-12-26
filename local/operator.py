@@ -128,7 +128,10 @@ class Operator(NodeItem):
                 operator_parameter[key] = data[key]
             operator_type = data['operator']
             operator_name = data['name']
-            operator_id = data['id']
+            if 'id' in data.keys():
+                operator_id = data['id']
+            else:
+                operator_id = str(uuid.uuid4())
 
             # Check if number provider
             if 'number_provider' in data.keys():
