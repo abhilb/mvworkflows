@@ -6,4 +6,4 @@ products
 recentfiles.dat
 .session
 *.vim
-
+*.json
