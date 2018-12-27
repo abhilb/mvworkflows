@@ -8,5 +8,8 @@
     <file>icons/open.png</file>
     <file>icons/undo.png</file>
     <file>icons/redo.png</file>
+    <file>icons/execute.png</file>
+    <file>icons/parameter.png</file>
+    <file>icons/input.png</file>
 </qresource>
 </RCC>
