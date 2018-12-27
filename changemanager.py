@@ -11,7 +11,6 @@ class ChangeManager(QObject):
         self.snapshots = []
         self.current_index = -1
         self._ignore = False
-        print(f"change_manager: current_index: {self.current_index}")
 
     @property
     def ignore_changes(self):

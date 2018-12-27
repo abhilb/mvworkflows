@@ -12,3 +12,9 @@ parameters:
       value: 2.001
       type: DOUBLE_PARAM
       default: 3.0
+properties:
+    - number_provider: True
+    - number_list_provider: False
+    - feature_provider: False
+    - string_provider: True
+    - image_provider: False

@@ -19,6 +19,9 @@ class Workflow(NodeItem):
         self.string_providers = []
 
     def _add_operator(self, operator):
+        if operator is None:
+            return
+
         self.appendRow(operator)
         if operator.is_image_provider():
             self.image_providers.append(operator.uuid)

@@ -1,7 +1,7 @@
 from local.node import NodeItem, NodeType
 from local import Operators
-from local.parameteritem import ParameterItem, ParameterType
-from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QFont
+from local.parameteritem import ParameterType
+from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QFont, QColor
 from PyQt5.QtCore import Qt
 
 import os
@@ -40,13 +40,17 @@ class Operator(NodeItem):
 
         for item in op['parameters']:
             parameter = QStandardItem(item['parameter'])
+            parameter.setIcon(QIcon(":/icons/parameter.png"))
             parameter_type = ParameterType[item['type']]
             parameter_value = item['value']
+            parameter.setEditable(False)
+            parameter.setSelectable(False)
+            parameter.setBackground(QColor('lightblue'))
+
             value = QStandardItem()
             value.setData(parameter_value, Qt.DisplayRole)
             value.setData(parameter_type, Qt.UserRole)
-            parameter.setEditable(False)
-            parameter.setSelectable(False)
+            value.setBackground(QColor('lightblue'))
 
             parameter_font = parameter.font()
             parameter_font.setWeight(QFont.Bold)
@@ -60,6 +64,35 @@ class Operator(NodeItem):
             parameter.setFont(parameter_font)
 
             self.parameters.appendRow([parameter, value])
+
+        if 'properties' in op.keys():
+            for item in op['properties']:
+                prop, val = list(item.items())[0]
+                logging.info(f"property: {prop} - {val}")
+                if val == False:
+                    continue
+                value = QStandardItem()
+                value.setData(ParameterType.INPUT_PARAM, Qt.UserRole)
+                value.setBackground(QColor('lightgreen'))
+
+                parameter = QStandardItem(prop)
+                parameter.setIcon(QIcon(":/icons/input.png"))
+                parameter.setEditable(False)
+                parameter.setSelectable(False)
+                parameter.setBackground(QColor('lightgreen'))
+
+                parameter_font = parameter.font()
+                parameter_font.setWeight(QFont.Bold)
+                parameter_font_size = parameter_font.pointSize()
+                if parameter_font_size == -1:
+                    parameter_font.setPixelSize(parameter_font.pixelSize() + 1)
+                else:
+                    parameter_font.setPointSize(parameter_font_size + 1)
+                parameter_font.setItalic(True)
+                parameter_font.setCapitalization(QFont.AllUppercase)
+                parameter.setFont(parameter_font)
+
+                self.parameters.appendRow([parameter, value])
 
     def set_parameter(self, name, value):
         """

@@ -37,8 +37,7 @@ class ParamDelegate(QStyledItemDelegate):
             editor.setValue(parameter_value)
             return editor
         elif parameter_type is ParameterType.BOOL_PARAM:
-            editor = QCheckBox(parent)
-            return editor
+            pass
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             editor = QFileDialog(parent)
             editor.setFileMode(QFileDialog.Directory)
@@ -46,16 +45,19 @@ class ParamDelegate(QStyledItemDelegate):
         elif parameter_type is ParameterType.STR_PARAM:
             editor = QLineEdit(parent)
             return editor
+        elif parameter_type is ParameterType.INPUT_PARAM:
+            editor = QComboBox(parent)
+            return editor
 
     def setEditorData(self, editor, index):
         model = index.model()
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
         parameter_value = parameter.data(Qt.DisplayRole)
-        if parameter_type is ParameterType.INT_PARAM or ParameterType.DOUBLE_PARAM:
+        if parameter_type is ParameterType.INT_PARAM or parameter_type is ParameterType.DOUBLE_PARAM:
             editor.setValue(parameter_value)
         elif parameter_type is ParameterType.BOOL_PARAM:
-            editor.setChecked(parameter_value)
+            pass
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             pass
         elif parameter_type is ParameterType.STR_PARAM:
@@ -64,10 +66,10 @@ class ParamDelegate(QStyledItemDelegate):
     def setModelData(self, editor, model, index):
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
-        if parameter_type is ParameterType.INT_PARAM or ParameterType.DOUBLE_PARAM:
+        if parameter_type is ParameterType.INT_PARAM or parameter_type is ParameterType.DOUBLE_PARAM:
             parameter.setData(editor.value(), Qt.DisplayRole)
         elif parameter_type is ParameterType.BOOL_PARAM:
-            parameter.setData(editor.isChecked(), Qt.DisplayRole)
+            pass
         elif parameter_type is ParameterType.FILE_PATH_PARAM:
             selectedFilesList = editor.selectedFiles()
             if selectedFilesList is not None and len(selectedFilesList) > 0:

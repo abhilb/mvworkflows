@@ -28,11 +28,6 @@ config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
 context = zmq.Context()
-sock = context.socket(zmq.REQ)
-sock.connect("tcp://localhost:5555")
-sock.send(b'test')
-message = sock.recv()
-connected = True if message == 'test' else False
 
 def app_init():
     """
@@ -174,6 +169,7 @@ class MainWindow(QMainWindow):
         self.operatorEditor = QTreeView()
         self.operatorEditor.setItemDelegate(ParamDelegate())
         self.operatorEditor.setHeaderHidden(True)
+        self.operatorEditor.setRootIsDecorated(False)
         self.operatorEditorDock = QDockWidget("Operator editor", self)
         self.operatorEditorDock.setWidget(self.operatorEditor)
         self.addDockWidget(Qt.RightDockWidgetArea, self.operatorEditorDock)
