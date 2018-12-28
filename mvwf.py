@@ -21,6 +21,8 @@ from PyQt5.QtGui import *
 from local.product import *
 from local import Operators
 from local.paramdelegate import ParamDelegate
+from local.taskselector import TaskSelector
+from local.create_task import CreateTask
 from changemanager import ChangeManager
 
 # globals
@@ -92,6 +94,7 @@ class MainWindow(QMainWindow):
         self.redo_change_action = QAction(QIcon(":icons/redo.png"), "Redo change", triggered=self.redo_change)
         self.redo_change_action.setEnabled(False)
         self.execute_action = QAction(QIcon(":icons/execute.png"), "Execute", triggered=self.execute)
+        self.create_task_action = QAction("Create new task", triggered=self.create_task)
 
         # Action short cuts
         self.newProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
@@ -115,6 +118,7 @@ class MainWindow(QMainWindow):
         self.editMenu = self.menuBar().addMenu("&Edit")
         self.editMenu.addAction(self.newWorkflow)
         self.editMenu.addAction(self.addOperatorAction)
+        self.editMenu.addAction(self.create_task_action)
 
         self.settingsMenu = self.menuBar().addMenu("&Settings")
         self.settingsMenu.addAction(self.showConfig)
@@ -209,6 +213,10 @@ class MainWindow(QMainWindow):
     def execute(self):
         pass
 
+    def create_task(self):
+        create_task_dlg = CreateTask(self)
+        create_task_dlg.exec()
+
     def update_undo_redo(self):
         """ Enable/Disable the undo and redo buttons based on if undo/redo is possible """
         self.undo_change_action.setEnabled(self.change_manager.is_undo_possible())
@@ -221,6 +229,7 @@ class MainWindow(QMainWindow):
         """
         model = index.model()
         item = model.itemFromIndex(index)
+        print(f"........ {type(item)}")
         if item.node_type == NodeType.OPERATOR:
             self.operatorEditor.setModel(item.parameters)
 
@@ -360,6 +369,7 @@ class MainWindow(QMainWindow):
             if fileName in recent_files_list:
                 recent_files_list.remove(fileName)
             recent_files_list.append(fileName)
+            self.operatorEditor.resetModel()
 
     def addWorkflow(self):
         """ Add a workflow to the currently open product """
@@ -380,10 +390,11 @@ class MainWindow(QMainWindow):
                 nodeType = node.node_type
                 if nodeType == NodeType.WORKFLOW:
                     logging.info("Node is of type workflow")
-                    operator, ok = QInputDialog.getItem(self, "Operator",
-                                                        "Operator: ",
-                                                        Operators.keys(),
-                                                        0, False)
+                    task_selector = TaskSelector(Operators, self)
+                    task_selector.setWindowTitle("Task list")
+                    task_selector.exec()
+                    operator = task_selector.get_selected_task()
+                    logging.info(f"{operator} has been selected")
                     node.add_operator(operator)
                     self.productExplorer.expandAll()
 
