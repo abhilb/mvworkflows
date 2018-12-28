@@ -1,4 +1,12 @@
 name: "test"
+description: |
+    Task <b>test</b> is for testing.
+    It has the following the types of parameters.
+    <ul>
+    <li>Boolean Parameter - That takes either True or False</li>
+    <li>String Paraeter - That takes a string as input</li>
+    <li>Double Parameter - That takes a floating pointe value.</li>
+    </ul>
 parameters:
     - parameter: bool_param
       value: True

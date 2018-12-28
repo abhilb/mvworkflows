@@ -1,38 +1,41 @@
 from PyQt5.QtGui import QIcon
 import logging
 
+from enum import Enum
+
 from local.node import NodeType, NodeItem
 from local.operatorfactory import *
 from local.operator import Operator
 from local.misc import get_unique_name
+
+PROVIDER_TYPE = Enum('PROVIDER_TYPE', 'IMAGE, NUMBER, NUMBER_LIST, FEATURE, STRING')
 
 class Workflow(NodeItem):
     def __init__(self, workflowName):
         super().__init__(workflowName, QIcon(":/icons/workflow.png"),
                          NodeType.WORKFLOW)
         logging.info(f"{workflowName} Workflow created")
+        self.providers = {}
         self.operatorNames = []
-        self.image_providers = []
-        self.feature_providers = []
-        self.number_providers = []
-        self.number_list_providers = []
-        self.string_providers = []
+        for provider_type in PROVIDER_TYPE:
+            self.providers[provider_type] = []
 
     def _add_operator(self, operator):
         if operator is None:
+            logging.warning(f"Operator is NONE")
             return
 
         self.appendRow(operator)
         if operator.is_image_provider():
-            self.image_providers.append(operator.uuid)
+            self.providers[PROVIDER_TYPE.IMAGE].append(operator.uuid)
         if operator.is_feature_provider():
-            self.feature_providers.append(operator.uuid)
+            self.providers[PROVIDER_TYPE.FEATURE].append(operator.uuid)
         if operator.is_number_provider():
-            self.number_provders.append(operator.uuid)
+            self.providers[PROVIDER_TYPE.NUMBER].append(operator.uuid)
         if operator.is_number_list_provider():
-            self.number_list_provders.append(operator.uuid)
+            self.providers[PROVIDER_TYPE.NUMBER_LIST].append(operator.uuid)
         if operator.is_string_provider():
-            self.string_providers.append(operator.uuid)
+            self.providers[PROVIDER_TYPE.STRING].append(operator.uuid)
 
     def save(self):
         logging.info("Saving the workflow")

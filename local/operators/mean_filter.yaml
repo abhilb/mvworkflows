@@ -8,12 +8,10 @@ parameters:
   maximum: 51
 
 input:
--
-name: 'image'
-type: 'bitmap'
-opid: ''
+- name: 'image'
+  type: 'bitmap'
+  opid: ''
 
 output:
--
-name: 'mean_image'
-type: 'bitmap'
+- name: 'mean_image'
+  type: 'bitmap'

@@ -18,6 +18,8 @@ class ParamDelegate(QStyledItemDelegate):
     def createEditor(self, parent, option, index):
         model = index.model()
         assert(model != None)
+        workflow = model.parent()
+        print(f"----------> type: {type(workflow)}")
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
         parameter_value = parameter.data(Qt.DisplayRole)

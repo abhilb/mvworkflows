@@ -26,6 +26,7 @@ class Operator(NodeItem):
         super().__init__(name, QIcon(":icons/actionnode.png"),
                          NodeType.OPERATOR)
         self._uuid = uuid.uuid4()
+        logging.info(Operators)
         op = Operators[template]
         self.parameters = QStandardItemModel()
         self.name = name

@@ -15,8 +15,7 @@ from PyQt5.QtGui import *
 
 from local import resources
 from local.node import NodeItem, NodeType
-from local.workflow import Workflow
-from local.operator import Operator
+from local.workflow import Workflow, PROVIDER_TYPE
 from local.misc import get_unique_name
 
 class Product(NodeItem):
