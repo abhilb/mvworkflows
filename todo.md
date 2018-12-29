@@ -17,4 +17,10 @@
 * Implement some basic tasks
 * Improve logging. Use loggers and set the name of the classes in the log format.
 * Set up a method to set logging level as a command line input to the application
+* Add option to remove task from workflow
+* Add option to remove workflow
+* Make the product/workflow/operator data structure independant of Qt. Make Qt bindings only where it is absolutely needed. So that it is easier for testing. 
+* Add option to enable and disable tasks
+* Add special icons to indicate that the inputs for a task are not complete
+* Add a status bar widget to indicate whether the product is complete or not.
 
