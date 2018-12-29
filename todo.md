@@ -15,3 +15,6 @@
 * Concept for Dashboard.
 * Splash screen when the operator is loading
 * Implement some basic tasks
+* Improve logging. Use loggers and set the name of the classes in the log format.
+* Set up a method to set logging level as a command line input to the application
+
