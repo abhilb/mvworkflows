@@ -1,4 +1,4 @@
-![alt text](https://github.com/abhilb/mvworkflows/icons/splash.png "LOGO")
+![alt text](https://github.com/abhilb/mvworkflows/blob/master/icons/splash.png "LOGO")
 
 # mvworkflows
 Machine Vision Workflow Editor
