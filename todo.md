@@ -13,7 +13,7 @@
 * Concept for workflow results?
 * Concept for displaying workflow results
 * Concept for Dashboard.
-* Splash screen when the application is loading
+* ~~Splash screen when the application is loading~~
 * Implement some basic tasks
 * Improve logging. Use loggers and set the name of the classes in the log format.
 * Set up a method to set logging level as a command line input to the application
