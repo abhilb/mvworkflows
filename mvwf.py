@@ -420,6 +420,12 @@ class MainWindow(QMainWindow):
 
 if __name__ == "__main__":
     #app.setStyleSheet(qdarkstyle.load_stylesheet_pyqt5())
+    splash_img = QPixmap("icons/splash.png")
+    splash = QSplashScreen(splash_img, Qt.WindowStaysOnTopHint)
+    splash.show()
+
     mainWindow = MainWindow()
     mainWindow.show()
+
+    splash.finish(mainWindow)
     sys.exit(app.exec_())
