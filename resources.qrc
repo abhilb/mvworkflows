@@ -11,5 +11,6 @@
     <file>icons/execute.png</file>
     <file>icons/parameter.png</file>
     <file>icons/input.png</file>
+    <file>icons/logo.png</file>
 </qresource>
 </RCC>
