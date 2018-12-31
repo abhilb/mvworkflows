@@ -7,3 +7,5 @@ recentfiles.dat
 .session
 *.vim
 *.json
+venv
+venv/*
