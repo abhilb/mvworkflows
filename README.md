@@ -1,3 +1,5 @@
+![alt text](https://github.com/abhilb/mvworkflows/blob/master/icons/splash.png "LOGO")
+
 # mvworkflows
 Machine Vision Workflow Editor
 
