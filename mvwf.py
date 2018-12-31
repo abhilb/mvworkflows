@@ -18,11 +18,13 @@ from PyQt5.QtGui import *
 #import qdarkstyle
 
 # Local imports
-from local.product import *
 from local import Operators
+from local.product import *
+from local.node import NodeType
 from local.paramdelegate import ParamDelegate
 from local.taskselector import TaskSelector
 from local.create_task import CreateTask
+from local.product_explorer import ProductExplorer
 from changemanager import ChangeManager
 
 # globals
@@ -155,16 +157,30 @@ class MainWindow(QMainWindow):
         statusBarWidget.layout().addWidget(QLabel("Created by <em>Abhilash Babu J</em>"))
         self.statusBar().addPermanentWidget(statusBarWidget)
 
+
+        ################
+        # Central Widget
+        ################
         self.setCentralWidget(QTabWidget())
         centralWidget = self.centralWidget()
         centralWidget.setTabsClosable(True)
+        # centralWidget.setStyleSheet("""
+        #         QWidget {
+        #         background-color: rgb(40, 40, 40);
+        #         }
+        #         """)
         centralWidget.tabCloseRequested.connect(self.onTabClose)
 
+        ###################
         # Product Explorer
-        self.productExplorer = QTreeView()
+        ###################
+        self.productExplorer = ProductExplorer()
         self.productExplorer.setHeaderHidden(True)
         self.productExplorer.setContextMenuPolicy(Qt.DefaultContextMenu)
-        self.productExplorer.clicked.connect(self.product_item_selected)
+        # self.productExplorer.clicked.connect(self.product_item_selected)
+        self.productExplorer.operator_selected.connect(self.product_item_selected)
+
+
         self.dockingWidget = QDockWidget("Product explorer", self)
         self.dockingWidget.setWidget(self.productExplorer)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockingWidget)
@@ -229,7 +245,6 @@ class MainWindow(QMainWindow):
         """
         model = index.model()
         item = model.itemFromIndex(index)
-        print(f"........ {type(item)}")
         if item.node_type == NodeType.OPERATOR:
             self.operatorEditor.setModel(item.parameters)
 
@@ -244,7 +259,7 @@ class MainWindow(QMainWindow):
             self.product.rowsInserted.connect(self.on_product_changed)
             self.product.rowsRemoved.connect(self.on_product_changed)
             self.product.rowsMoved.connect(self.on_product_changed)
-            self.productExplorer.setModel(self.product)
+            self.productExplorer.set_model(self.product)
             self.productExplorer.expandAll()
 
     def keyPressEvent(self, event):
@@ -280,7 +295,7 @@ class MainWindow(QMainWindow):
     def show_about_dlg(self):
         """ Show the about dialog """
         msgBox = QMessageBox(self)
-        msgBox.setIconPixmap(QIcon(":/icons/product.png").pixmap(QSize(64,64)))
+        msgBox.setIconPixmap(QIcon(":/icons/logo.png").pixmap(QSize(64,64)))
         msgBox.setWindowTitle("About")
         msgBox.setText("""
         <h1>Machine Vision Workflows</h1>
@@ -339,7 +354,7 @@ class MainWindow(QMainWindow):
         self.product.rowsInserted.connect(self.on_product_changed)
         self.product.rowsRemoved.connect(self.on_product_changed)
         self.product.rowsMoved.connect(self.on_product_changed)
-        self.productExplorer.setModel(self.product)
+        self.productExplorer.set_model(self.product)
         self.change_manager.save_state(self.product)
 
     def saveProduct(self):
@@ -365,7 +380,7 @@ class MainWindow(QMainWindow):
             self.product.rowsInserted.connect(self.on_product_changed)
             self.product.rowsRemoved.connect(self.on_product_changed)
             self.product.rowsMoved.connect(self.on_product_changed)
-            self.productExplorer.setModel(self.product)
+            self.productExplorer.set_model(self.product)
             if fileName in recent_files_list:
                 recent_files_list.remove(fileName)
             recent_files_list.append(fileName)
@@ -425,6 +440,12 @@ if __name__ == "__main__":
     splash.show()
 
     mainWindow = MainWindow()
+    mainWindow.setWindowIcon(QIcon(":/icons/logo.png"))
+    # mainWindow.setStyleSheet("""
+    #         QMainWindow {
+    #         background-color : rgb(40, 40, 40);
+    #         }
+    #         """)
     mainWindow.show()
 
     splash.finish(mainWindow)

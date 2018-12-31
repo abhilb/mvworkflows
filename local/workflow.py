@@ -7,8 +7,7 @@ from local.node import NodeType, NodeItem
 from local.operatorfactory import *
 from local.operator import Operator
 from local.misc import get_unique_name
-
-PROVIDER_TYPE = Enum('PROVIDER_TYPE', 'IMAGE, NUMBER, NUMBER_LIST, FEATURE, STRING')
+from local.operatorinfo import PROVIDER_TYPE
 
 class Workflow(NodeItem):
     def __init__(self, workflowName):
@@ -26,16 +25,25 @@ class Workflow(NodeItem):
             return
 
         self.appendRow(operator)
-        if operator.is_image_provider():
-            self.providers[PROVIDER_TYPE.IMAGE].append(operator.uuid)
-        if operator.is_feature_provider():
-            self.providers[PROVIDER_TYPE.FEATURE].append(operator.uuid)
-        if operator.is_number_provider():
-            self.providers[PROVIDER_TYPE.NUMBER].append(operator.uuid)
-        if operator.is_number_list_provider():
-            self.providers[PROVIDER_TYPE.NUMBER_LIST].append(operator.uuid)
-        if operator.is_string_provider():
-            self.providers[PROVIDER_TYPE.STRING].append(operator.uuid)
+        if operator.image_provider:
+            self.providers[PROVIDER_TYPE.IMAGE].append(operator)
+        if operator.feature_provider:
+            self.providers[PROVIDER_TYPE.FEATURE].append(operator)
+        if operator.number_provider:
+            self.providers[PROVIDER_TYPE.NUMBER].append(operator)
+        if operator.number_list_provider:
+            self.providers[PROVIDER_TYPE.NUMBER_LIST].append(operator)
+        if operator.string_provider:
+            self.providers[PROVIDER_TYPE.STRING].append(operator)
+
+    def get_operator_by_id(self, operator_id):
+        if self.hasChildren():
+            rowCount = self.rowCount()
+            for row in range(rowCount):
+                operator = self.child(row)
+                if operator.id == operator_id:
+                    return operator
+        return None
 
     def save(self):
         logging.info("Saving the workflow")
@@ -58,7 +66,7 @@ class Workflow(NodeItem):
         wf = Workflow(name)
         operators = data['operators']
         for op in operators:
-            operator = Operator.from_json(op)
+            operator = Operator.from_json(op, wf)
             wf._add_operator(operator)
             wf.operatorNames.append(operator.name)
         return wf
@@ -67,5 +75,5 @@ class Workflow(NodeItem):
         logging.info(f"[Workflow] adding operator")
         name = get_unique_name(self.operatorNames, template)
         logging.info(f"Operator name is {name}")
-        self._add_operator(Operator(template, name))
+        self._add_operator(Operator(template, name, self))
         self.operatorNames.append(name)

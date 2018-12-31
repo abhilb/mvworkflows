@@ -1,6 +1,8 @@
 from local.node import NodeItem, NodeType
 from local import Operators
 from local.parameteritem import ParameterType
+from local.operatorinfo import OperatorInfo, PROVIDER_TYPE
+
 from PyQt5.QtGui import QIcon, QStandardItem, QStandardItemModel, QFont, QColor
 from PyQt5.QtCore import Qt
 
@@ -8,6 +10,10 @@ import os
 import yaml
 import uuid
 import logging
+
+PARAMETER_TYPE_ROLE = Qt.UserRole
+INPUT_TYPE_ROLE = Qt.UserRole + 1
+INPUT_VALUE_OP_ID_ROLE = Qt.UserRole + 2
 
 class Operator(NodeItem):
     """
@@ -22,15 +28,17 @@ class Operator(NodeItem):
     operators = []
 
     # constructor
-    def __init__(self, template, name=None):
+    def __init__(self, template, name, parent=None):
         super().__init__(name, QIcon(":icons/actionnode.png"),
                          NodeType.OPERATOR)
         self._uuid = uuid.uuid4()
         logging.info(Operators)
         op = Operators[template]
-        self.parameters = QStandardItemModel()
         self.name = name
         self.template = template
+        self.workflow = parent
+        self.properties = []
+        self.parameters = OperatorInfo(self)
 
         # Operator properties
         self._number_provider = False
@@ -66,21 +74,24 @@ class Operator(NodeItem):
 
             self.parameters.appendRow([parameter, value])
 
-        if 'properties' in op.keys():
-            for item in op['properties']:
-                prop, val = list(item.items())[0]
-                logging.info(f"property: {prop} - {val}")
-                if val == False:
-                    continue
+        if 'inputs' in op.keys():
+            # inputs is a sequence of dicts
+            for item in op['inputs']:
+                # Each input has a name, type
+                input_name = item['input_name']
+                input_type = PROVIDER_TYPE[item['type']]
+
                 value = QStandardItem()
                 value.setData(ParameterType.INPUT_PARAM, Qt.UserRole)
-                value.setBackground(QColor('lightgreen'))
+                value.setData(input_type, Qt.UserRole + 1)
+                value.setData("", Qt.UserRole + 2)
+                value.setBackground(QColor(211, 211, 211))
 
-                parameter = QStandardItem(prop)
+                parameter = QStandardItem(input_name)
                 parameter.setIcon(QIcon(":/icons/input.png"))
                 parameter.setEditable(False)
                 parameter.setSelectable(False)
-                parameter.setBackground(QColor('lightgreen'))
+                parameter.setBackground(QColor(211, 211, 211))
 
                 parameter_font = parameter.font()
                 parameter_font.setWeight(QFont.Bold)
@@ -95,6 +106,24 @@ class Operator(NodeItem):
 
                 self.parameters.appendRow([parameter, value])
 
+        if 'properties' in op.keys():
+            for prop in op['properties']:
+                try:
+                    prop_enum = PROVIDER_TYPE[prop]
+                    self.properties.append(prop_enum)
+                except:
+                    logging.error(f"Failed to set properties.... ")
+                    logging.error(f"Failed to conver the property {prop} to provider enum type")
+                    pass
+
+    def get_properties(self):
+        return self.properties
+
+    def set_properties(self, props):
+        """Set the properties of the operator"""
+        self.properties.clear()
+        self.properties.extend(props)
+
     def set_parameter(self, name, value):
         """
         Update the value of the parameter
@@ -106,7 +135,6 @@ class Operator(NodeItem):
             parameter_item = self.parameters.item(row, 1)
             if parameter_name == name:
                 parameter_type = parameter_item.data(Qt.UserRole)
-                print(f"{parameter_name} {parameter_type}")
                 if parameter_type is ParameterType.BOOL_PARAM:
                     parameter_item.setCheckable(True)
                     value = bool(value)
@@ -114,32 +142,37 @@ class Operator(NodeItem):
                     value = int(value)
                 elif parameter_type is ParameterType.DOUBLE_PARAM:
                     value = float(value)
-
+                elif parameter_type is ParameterType.INPUT_PARAM:
+                    other_operator = self.workflow.get_operator_by_id(value)
+                    if other_operator is not None:
+                        value = other_operator.name
                 parameter_item.setData(value, Qt.DisplayRole)
 
-    def is_number_provider(self):
+
+    @property
+    def number_provider(self):
         """ Operator provides a number as output """
-        return self._number_provider
+        return PROVIDER_TYPE.NUMBER in self.properties
 
-    def is_number_list_provider(self):
+    @property
+    def number_list_provider(self):
         """ Operator provides a list of numbers as output """
-        return self._number_list_provider
+        return PROVIDER_TYPE.NUMBER_LIST in self.properties
 
-    def is_2d_feature_provider(self):
+    @property
+    def feature_provider(self):
         """ Operator provides a feature as output """
-        return self._feature_provider
+        return PROVIDER_TYPE.FEATURE in self.properties
 
-    def is_image_provider(self):
+    @property
+    def image_provider(self):
         """ Operator provides an image as output """
-        return self._image_provider
+        return PROVIDER_TYPE.IMAGE in self.properties
 
-    def is_feature_provider(self):
-        """ Operator provides a feature as output """
-        return self._feature_provider
-
-    def is_string_provider(self):
+    @property
+    def string_provider(self):
         """ Operator provides a string as output """
-        return self._string_provider
+        return PROVIDER_TYPE.STRING in self.properties
 
     @property
     def id(self):
@@ -149,43 +182,48 @@ class Operator(NodeItem):
     def id(self, uuid_):
         self._uuid = uuid.UUID(uuid_)
 
+    def provides(self, input_type):
+        return input_type in self.properties
+
     @staticmethod
-    def from_json(data):
+    def from_json(data, workflow = None):
         """
         Loads Operator from Json data
         """
         try:
             operator_parameter = {}
             for key in data.keys():
-                if key == 'operator' or key == 'name':
+                if key in ['operator', 'name', 'id', 'properties']:
                     continue
                 operator_parameter[key] = data[key]
             operator_type = data['operator']
             operator_name = data['name']
+            operator_props = []
+            logging.info("---------------------")
+            logging.info("Parsing properties")
+            for prop in data['properties']:
+                try:
+                    enum_name, prop_name = prop.split('.')
+                    prop_enum = PROVIDER_TYPE[prop_name]
+                    operator_props.append(prop_enum)
+                except:
+                    logging.error(f"Unknown provider type - {prop}")
+            logging.info("---------------------")
+
             if 'id' in data.keys():
                 operator_id = data['id']
             else:
                 operator_id = str(uuid.uuid4())
 
-            # Check if number provider
-            if 'number_provider' in data.keys():
-                self.is_number_provider = data['number_provider']
-
-            # Check if number list provider
-            if 'number_list_provider' in data.keys():
-                self.is_number_list_provider = data['number_list_provider']
-
-            # Check if image provider
-            if 'image_provider' in data.keys():
-                self.is_image_provider = data['image_provider']
-
         except KeyError as e:
             logging.error("Failed to load operator from json - key error")
         else:
-            operator = Operator(operator_type, operator_name)
+            operator = Operator(operator_type, operator_name, workflow)
             operator.id = operator_id
             for parameter, value in operator_parameter.items():
                 operator.set_parameter(parameter, value)
+            logging.info(f"Operator properties: {operator_props}")
+            operator.set_properties(operator_props)
             return operator
 
     def to_json(self):
@@ -195,11 +233,16 @@ class Operator(NodeItem):
         ret['operator'] = self.template
         ret['name'] = self.name
         ret['id'] = self.id
+        ret['properties'] = [str(x) for x in self.get_properties()]
         for row in range(self.parameters.rowCount()):
             parameter_index = self.parameters.index(row, 0)
             value_index = self.parameters.index(row, 1)
             parameter = self.parameters.itemFromIndex(parameter_index)
             value = self.parameters.itemFromIndex(value_index)
-            print(f"{row+1} : {parameter.text()} : {value.text()}")
-            ret[parameter.text()] = value.text()
+            parameter_type = value.data(Qt.UserRole)
+            if parameter_type == ParameterType.INPUT_PARAM:
+                ret[parameter.text()] = value.data(Qt.UserRole + 2)
+            else:
+                ret[parameter.text()] = value.text()
+        logging.info(f"Operator: {ret}")
         return ret

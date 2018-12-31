@@ -1,6 +1,13 @@
 name: "file_capture"
-parameters: 
+
+description: |
+    Reads images from the give folder.
+
+parameters:
 - parameter: file_path
   value: "d:\\images\\"
   type: FILE_PATH_PARAM
   default: "d:\\"
+
+properties:
+    - IMAGE

@@ -1,17 +1,27 @@
 name: "mean_filter"
+description: |
+    Mean Filter
+    Applies mean filter to the input image
+    Inputs -
+    <ul>
+    <li>Image</li>
+    </ul>
+    Parameters -
+    <ul>
+    <li>Filter size</li>
+    </ul>
+
 parameters:
-- parameter: 'filter_size'
-  value: 9
-  type: INT_PARAM
-  default: 3
-  minimum: 3
-  maximum: 51
+    - parameter: 'filter_size'
+      value: 9
+      type: INT_PARAM
+      default: 3
+      minimum: 3
+      maximum: 51
 
-input:
-- name: 'image'
-  type: 'bitmap'
-  opid: ''
+inputs:
+    - input_name: image
+      type: IMAGE
 
-output:
-- name: 'mean_image'
-  type: 'bitmap'
+properties:
+    - IMAGE

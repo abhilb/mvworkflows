@@ -20,9 +20,13 @@ parameters:
       value: 2.001
       type: DOUBLE_PARAM
       default: 3.0
+inputs:
+    - input_name: image
+      type: IMAGE
+    - input_name: string
+      type: STRING
+    - input_name: count
+      type: NUMBER
 properties:
-    - number_provider: True
-    - number_list_provider: False
-    - feature_provider: False
-    - string_provider: True
-    - image_provider: False
+    - NUMBER
+    - IMAGE

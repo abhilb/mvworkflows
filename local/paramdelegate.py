@@ -6,6 +6,7 @@ import logging
 logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
 
 from local.parameteritem import *
+from local.operatorinfo import OperatorInfo, PROVIDER_TYPE
 
 class ParamDelegate(QStyledItemDelegate):
     """
@@ -13,17 +14,14 @@ class ParamDelegate(QStyledItemDelegate):
     """
     def __init__(self, parent=None):
         super().__init__(parent)
-        logging.info("Param delegate created")
 
     def createEditor(self, parent, option, index):
         model = index.model()
         assert(model != None)
-        workflow = model.parent()
-        print(f"----------> type: {type(workflow)}")
+
         parameter = model.itemFromIndex(index)
         parameter_type = parameter.data(Qt.UserRole)
         parameter_value = parameter.data(Qt.DisplayRole)
-        print(f"parameter type: {parameter_type} - {type(parameter_type)}")
         if parameter_type is ParameterType.INT_PARAM:
             editor = QSpinBox(parent)
             editor.setFrame(False)
@@ -49,6 +47,12 @@ class ParamDelegate(QStyledItemDelegate):
             return editor
         elif parameter_type is ParameterType.INPUT_PARAM:
             editor = QComboBox(parent)
+
+            input_type = parameter.data(Qt.UserRole + 1)
+            providers = model.get_providers(input_type)
+            for item in providers:
+                editor.addItem(item.name, item.id)
+
             return editor
 
     def setEditorData(self, editor, index):
@@ -64,6 +68,12 @@ class ParamDelegate(QStyledItemDelegate):
             pass
         elif parameter_type is ParameterType.STR_PARAM:
             editor.setText(parameter_value)
+        elif parameter_type is ParameterType.INPUT_PARAM:
+            logging.info(f"---------> {parameter_value}")
+            if parameter_value:
+                editor.setCurrentIndex(0)
+            else:
+                editor.setCurrentIndex(-1)
 
     def setModelData(self, editor, model, index):
         parameter = model.itemFromIndex(index)
@@ -79,6 +89,9 @@ class ParamDelegate(QStyledItemDelegate):
                 parameter.setData(selectedFolder, Qt.DisplayRole)
         elif parameter_type is ParameterType.STR_PARAM:
             parameter.setData(editor.text(), Qt.DisplayRole)
+        elif parameter_type is ParameterType.INPUT_PARAM:
+            parameter.setData(editor.currentText(), Qt.DisplayRole)
+            parameter.setData(editor.currentData(), Qt.UserRole + 2)
 
     def updateEditorGeometry(self, editor, option, index):
         model = index.model()
