@@ -191,16 +191,11 @@ class Operator(NodeItem):
         Loads Operator from Json data
         """
         try:
-            operator_parameter = {}
-            for key in data.keys():
-                if key in ['operator', 'name', 'id', 'properties']:
-                    continue
-                operator_parameter[key] = data[key]
+            operator_parameters = data['parameters']
+            operator_inputs = data['inputs']
             operator_type = data['operator']
             operator_name = data['name']
             operator_props = []
-            logging.info("---------------------")
-            logging.info("Parsing properties")
             for prop in data['properties']:
                 try:
                     enum_name, prop_name = prop.split('.')
@@ -208,7 +203,6 @@ class Operator(NodeItem):
                     operator_props.append(prop_enum)
                 except:
                     logging.error(f"Unknown provider type - {prop}")
-            logging.info("---------------------")
 
             if 'id' in data.keys():
                 operator_id = data['id']
@@ -220,20 +214,27 @@ class Operator(NodeItem):
         else:
             operator = Operator(operator_type, operator_name, workflow)
             operator.id = operator_id
-            for parameter, value in operator_parameter.items():
+
+            # set the parameters
+            for parameter, value in operator_parameters.items():
                 operator.set_parameter(parameter, value)
-            logging.info(f"Operator properties: {operator_props}")
+
+            # set the inputs
+            for parameter, value in operator_inputs.items():
+                operator.set_parameter(parameter, value)
+
             operator.set_properties(operator_props)
             return operator
 
     def to_json(self):
         """Save the operator to file"""
-        logging.info("Saving the operator")
         ret = {}
         ret['operator'] = self.template
         ret['name'] = self.name
         ret['id'] = self.id
         ret['properties'] = [str(x) for x in self.get_properties()]
+        parameters = {}
+        inputs = {}
         for row in range(self.parameters.rowCount()):
             parameter_index = self.parameters.index(row, 0)
             value_index = self.parameters.index(row, 1)
@@ -241,8 +242,10 @@ class Operator(NodeItem):
             value = self.parameters.itemFromIndex(value_index)
             parameter_type = value.data(Qt.UserRole)
             if parameter_type == ParameterType.INPUT_PARAM:
-                ret[parameter.text()] = value.data(Qt.UserRole + 2)
+                inputs[parameter.text()] = value.data(Qt.UserRole + 2)
             else:
-                ret[parameter.text()] = value.text()
-        logging.info(f"Operator: {ret}")
+                parameters[parameter.text()] = value.text()
+
+        ret['parameters'] = parameters
+        ret['inputs'] = inputs
         return ret
