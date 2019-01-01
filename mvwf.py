@@ -384,7 +384,6 @@ class MainWindow(QMainWindow):
             if fileName in recent_files_list:
                 recent_files_list.remove(fileName)
             recent_files_list.append(fileName)
-            self.operatorEditor.resetModel()
 
     def addWorkflow(self):
         """ Add a workflow to the currently open product """
