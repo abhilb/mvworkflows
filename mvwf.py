@@ -10,6 +10,7 @@ import zmq
 import logging
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 logging.basicConfig(format=LOG_FORMAT, level="INFO")
+logger = logging.getLogger("[mvwf]")
 
 # qt imports
 from PyQt5.QtWidgets import *
@@ -44,7 +45,7 @@ def app_init():
     # Load the config
     with open("config.yaml") as f:
         config = yaml.safe_load(f)
-    logging.info(config)
+    logger.info(config)
     products_dir = config['products_path']
     product_files = glob.glob(os.path.join(products_dir, "*.json"))
     pattern = re.compile(r"(\w*)\.json")
@@ -182,7 +183,6 @@ class MainWindow(QMainWindow):
         self.productExplorer.product_selected.connect(self.product_selected)
         self.productExplorer.workflow_selected.connect(self.workflow_selected)
 
-
         self.dockingWidget = QDockWidget("Product explorer", self)
         self.dockingWidget.setWidget(self.productExplorer)
         self.addDockWidget(Qt.RightDockWidgetArea, self.dockingWidget)
@@ -211,7 +211,7 @@ class MainWindow(QMainWindow):
         """
         selectedIndexes = self.productExplorer.selectedIndexes()
         if len(selectedIndexes) == 0:
-            logging.info("Nothing is selected in the product explorer")
+            logger.info("Nothing is selected in the product explorer")
             return
 
         model = selectedIndexes[0].model()
@@ -223,7 +223,7 @@ class MainWindow(QMainWindow):
         elif item.node_type == NodeType.PRODUCT:
             context_menu.addAction(self.newWorkflow)
         else:
-            logging.info("Selected item is neither a workflow nor product")
+            logger.info("Selected item is neither a workflow nor product")
             return
 
         context_menu.exec_(self.mapToGlobal(event.pos()))
@@ -263,7 +263,7 @@ class MainWindow(QMainWindow):
         action = self.sender()
         if action:
             filename = action.text()
-            logging.info(f"Open the product: {filename}")
+            logger.info(f"Open the product: {filename}")
             self.product = ProductModel.load_from_file(filename)
             self.product.itemChanged.connect(self.on_product_changed)
             self.product.rowsInserted.connect(self.on_product_changed)
@@ -299,7 +299,7 @@ class MainWindow(QMainWindow):
 
     def on_product_changed(self, item):
         """ Slot to track product changes """
-        logging.info("Product changed")
+        logger.info("Product changed")
         self.change_manager.save_state(self.product)
 
     def show_about_dlg(self):
@@ -321,19 +321,19 @@ class MainWindow(QMainWindow):
 
     def show_product_explorer(self):
         """ Show the product exeplorer """
-        logging.info("Show product explorer")
+        logger.info("Show product explorer")
         if self.dockingWidget:
             self.dockingWidget.setVisible(True)
 
     def show_operator_editor(self):
         """ Show the operator editor """
-        logging.info("Show operator editor")
+        logger.info("Show operator editor")
         if self.operatorEditorDock:
             self.operatorEditorDock.setVisible(True)
 
     def closeEvent(self, event):
         """ Slot for the application close event """
-        logging.info("Application close event")
+        logger.info("Application close event")
 
         # Closethe zmq socket
         context.destroy()
@@ -384,7 +384,7 @@ class MainWindow(QMainWindow):
         """ Open a product """
         fileName, _ = QFileDialog.getOpenFileName(self, filter="*.json")
         if fileName:
-            logging.info(f"Opening {fileName}")
+            logger.info(f"Opening {fileName}")
             self.product = ProductModel.load_from_file(fileName)
             self.product.itemChanged.connect(self.on_product_changed)
             self.product.rowsInserted.connect(self.on_product_changed)
@@ -398,7 +398,7 @@ class MainWindow(QMainWindow):
     def addWorkflow(self):
         """ Add a workflow to the currently open product """
         if self.product.isValid():
-            logging.info("Adding a new workflow")
+            logger.info("Adding a new workflow")
             self.product.add_workflow()
             self.productExplorer.expandAll()
         else:
@@ -413,14 +413,13 @@ class MainWindow(QMainWindow):
             if node is not None:
                 nodeType = node.node_type
                 if nodeType == NodeType.WORKFLOW:
-                    logging.info("Node is of type workflow")
                     task_selector = TaskSelector(Operators, self)
                     task_selector.setWindowTitle("Task list")
                     task_selector.exec()
                     operator = task_selector.get_selected_task()
-                    logging.info(f"{operator} has been selected")
                     node.add_operator(operator)
                     self.productExplorer.expandAll()
+                    logger.info("New Operator is added")
 
     def showConfig(self):
         """ Show the application config """
@@ -432,7 +431,7 @@ class MainWindow(QMainWindow):
             config = {}
             with open("config.yaml") as f:
                 config = yaml.safe_load(f)
-            logging.info(config)
+            logger.info(config)
 
             configTableModel = QStandardItemModel(len(config), 2)
             for r, (k,v) in enumerate(config.items()):

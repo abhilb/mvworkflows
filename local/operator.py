@@ -11,6 +11,10 @@ import yaml
 import uuid
 import logging
 
+LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+logging.basicConfig(format=LOG_FORMAT, level="INFO")
+logger = logging.getLogger(f"[{__name__}]")
+
 PARAMETER_TYPE_ROLE = Qt.UserRole
 INPUT_TYPE_ROLE = Qt.UserRole + 1
 INPUT_VALUE_OP_ID_ROLE = Qt.UserRole + 2
@@ -39,6 +43,7 @@ class Operator(NodeItem):
         self.workflow = parent
         self.properties = []
         self.parameters = OperatorInfo(self)
+        self._enabled = False
 
         # Operator properties
         self._number_provider = False
@@ -115,6 +120,14 @@ class Operator(NodeItem):
                     logging.error(f"Failed to set properties.... ")
                     logging.error(f"Failed to conver the property {prop} to provider enum type")
                     pass
+
+    @property
+    def enabled(self):
+        return self._enabled
+
+    @enabled.setter
+    def enabled(self, value):
+        self._enabled = value
 
     def get_properties(self):
         return self.properties
@@ -232,6 +245,7 @@ class Operator(NodeItem):
         ret['operator'] = self.template
         ret['name'] = self.name
         ret['id'] = self.id
+        ret['enabled'] = self.enabled
         ret['properties'] = [str(x) for x in self.get_properties()]
         parameters = {}
         inputs = {}

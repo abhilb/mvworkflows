@@ -1,19 +1,25 @@
-from PyQt5.QtGui import QIcon
+"""
+Module: Workflow
+Describes the Workflow component
+"""
 import logging
 
+from PyQt5.QtGui import QIcon
 from enum import Enum
-
 from local.node import NodeType, NodeItem
 from local.operatorfactory import *
 from local.operator import Operator
 from local.misc import get_unique_name
 from local.operatorinfo import PROVIDER_TYPE
 
+logger = logging.getLogger(f"[{__name__}]")
+
 class Workflow(NodeItem):
     def __init__(self, workflowName):
         super().__init__(workflowName, QIcon(":/icons/workflow.png"),
                          NodeType.WORKFLOW)
-        logging.info(f"{workflowName} Workflow created")
+        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger.info(f"{workflowName} Workflow created")
         self.providers = {}
         self.operatorNames = []
         for provider_type in PROVIDER_TYPE:
@@ -21,7 +27,7 @@ class Workflow(NodeItem):
 
     def _add_operator(self, operator):
         if operator is None:
-            logging.warning(f"Operator is NONE")
+            self.logger.warning(f"Operator is NONE")
             return
 
         self.appendRow(operator)
@@ -46,7 +52,7 @@ class Workflow(NodeItem):
         return None
 
     def save(self):
-        logging.info("Saving the workflow")
+        self.logger.info("Saving the workflow")
         workflowName = self.text()
         ret = {}
         ret['name'] = workflowName
@@ -72,8 +78,8 @@ class Workflow(NodeItem):
         return wf
 
     def add_operator(self, template):
-        logging.info(f"[Workflow] adding operator")
+        self.logger.info(f"[Workflow] adding operator")
         name = get_unique_name(self.operatorNames, template)
-        logging.info(f"Operator name is {name}")
+        self.logger.info(f"Operator name is {name}")
         self._add_operator(Operator(template, name, self))
         self.operatorNames.append(name)

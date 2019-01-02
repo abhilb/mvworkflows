@@ -18,6 +18,8 @@ from local.node import NodeItem, NodeType
 from local.workflow import Workflow, PROVIDER_TYPE
 from local.misc import get_unique_name
 
+logger = logging.getLogger(f"[{__name__}]")
+
 class Product(NodeItem):
     def __init__(self, name=None):
         super().__init__(name, QIcon(":/icons/product.png"),
@@ -61,11 +63,11 @@ class ProductModel(QStandardItemModel):
         product = {}
         root_index = self.index(0,0)
         productName = self.data(root_index)
-        logging.info(f"Product name : {productName}")
+        logger.info(f"Product name : {productName}")
         product['name'] = productName
         if self.hasChildren(root_index):
-            logging.info("Product has workflows")
-            logging.info(f"Number of workflows: {self.rowCount(root_index)}")
+            logger.info("Product has workflows")
+            logger.info(f"Number of workflows: {self.rowCount(root_index)}")
             workflows = []
             for row in range(self.rowCount(root_index)):
                 workflow_index = self.index(row, 0, root_index)
@@ -73,7 +75,7 @@ class ProductModel(QStandardItemModel):
                 workflows.append(workflow.save())
             product['workflows'] = workflows
         else:
-            logging.info("Product has NO workflows")
+            logger.info("Product has NO workflows")
             product['workflows'] = []
         return product
 
@@ -91,7 +93,7 @@ class ProductModel(QStandardItemModel):
 
     @staticmethod
     def load_from_file(filename):
-        logging.info("Static method of product class")
+        logger.info("Static method of product class")
         product = None
         with open(filename, "r") as f:
             productJson = json.load(f)

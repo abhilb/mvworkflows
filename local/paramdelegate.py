@@ -3,10 +3,12 @@ from PyQt5.QtGui import *
 from PyQt5.QtCore import *
 
 import logging
-logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
 
 from local.parameteritem import *
 from local.operatorinfo import OperatorInfo, PROVIDER_TYPE
+
+logging.basicConfig(format="%(name)s %(levelname)s %(message)s", level="INFO")
+logger = logging.getLogger(f"[{__name__}]")
 
 class ParamDelegate(QStyledItemDelegate):
     """
@@ -69,7 +71,6 @@ class ParamDelegate(QStyledItemDelegate):
         elif parameter_type is ParameterType.STR_PARAM:
             editor.setText(parameter_value)
         elif parameter_type is ParameterType.INPUT_PARAM:
-            logging.info(f"---------> {parameter_value}")
             if parameter_value:
                 editor.setCurrentIndex(0)
             else:
