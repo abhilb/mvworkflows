@@ -7,6 +7,8 @@ class ProductExplorer(QTreeView):
     """ Product explorer widget - inherits QTreeView """
 
     operator_selected = pyqtSignal(QModelIndex)
+    workflow_selected = pyqtSignal(QModelIndex)
+    product_selected = pyqtSignal(QModelIndex)
 
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -24,3 +26,7 @@ class ProductExplorer(QTreeView):
             nodeType = node.node_type
             if nodeType == NodeType.OPERATOR:
                 self.operator_selected.emit(index)
+            elif nodeType == NodeType.WORKFLOW:
+                self.workflow_selected.emit(index)
+            elif nodeType == NodeType.PRODUCT:
+                self.product_selected.emit(index)
