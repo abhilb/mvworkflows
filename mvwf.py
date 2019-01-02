@@ -178,7 +178,9 @@ class MainWindow(QMainWindow):
         self.productExplorer.setHeaderHidden(True)
         self.productExplorer.setContextMenuPolicy(Qt.DefaultContextMenu)
         # self.productExplorer.clicked.connect(self.product_item_selected)
-        self.productExplorer.operator_selected.connect(self.product_item_selected)
+        self.productExplorer.operator_selected.connect(self.operator_selected)
+        self.productExplorer.product_selected.connect(self.product_selected)
+        self.productExplorer.workflow_selected.connect(self.workflow_selected)
 
 
         self.dockingWidget = QDockWidget("Product explorer", self)
@@ -238,7 +240,15 @@ class MainWindow(QMainWindow):
         self.undo_change_action.setEnabled(self.change_manager.is_undo_possible())
         self.redo_change_action.setEnabled(self.change_manager.is_redo_possible())
 
-    def product_item_selected(self, index):
+    def workflow_selected(self, index):
+        """ When a workflow is selected in the product explorer clear the opertor editor """
+        self.operatorEditor.setModel(QStandardItemModel())
+
+    def product_selected(self, index):
+        """ When a product is selected in the product explorer clear the operator editor"""
+        self.operatorEditor.setModel(QStandardItemModel())
+
+    def operator_selected(self, index):
         """
         Set the model for the operator editor based on the operator selected
         based on the operator selected in the Product explorer
