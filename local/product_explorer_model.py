@@ -107,7 +107,7 @@ class ProductExplorerModel(QStandardItemModel):
     def __init__(self, parent=None):
         super().__init__(parent)
         self._product = Product()
-        self.root = QStandardItem("Product")
+        self.root = NodeItem("Product", QIcon(":icons/product.png"), NodeType.PRODUCT)
         self.appendRow(self.root)
 
     def add_workflow(self, wf_name):
@@ -116,8 +116,9 @@ class ProductExplorerModel(QStandardItemModel):
         self.root.appendRow(wf_node)
 
     def add_operator(self, index, op_name, op_type):
-        wf_node = self.itemAtIndex(index)
-        wf_node.appendRow(QStandardItem(QIcon(":/icons/operator.png"), op_name))
+        wf_node = self.itemFromIndex(index)
+        op_node = NodeItem(op_name, QIcon(":/icons/actionnode.png"), NodeType.OPERATOR)
+        wf_node.appendRow(op_node)
 
 
 if __name__ == "__main__":
@@ -133,7 +134,7 @@ if __name__ == "__main__":
     widget.setLayout(layout)
 
     view = ProductExplorer()
-    view.setModel(ProductExplorerModel())
+    view.set_model(ProductExplorerModel())
     view.workflow_selected.connect(lambda index: view.model().add_operator(index, "op", "test"))
     model = view.model()
     model.add_workflow("Test")
