@@ -12,5 +12,10 @@
     <file>icons/parameter.png</file>
     <file>icons/input.png</file>
     <file>icons/logo.png</file>
+    <file>icons/enable.png</file>
+    <file>icons/disable.png</file>
+    <file>icons/status-ok.png</file>
+    <file>icons/status-warning.png</file>
+    <file>icons/wfmap.png</file>
 </qresource>
 </RCC>
