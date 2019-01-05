@@ -26,6 +26,7 @@ from local.paramdelegate import ParamDelegate
 from local.taskselector import TaskSelector
 from local.create_task import CreateTask
 from local.product_explorer import ProductExplorer
+from local.wfmap import WorkflowMap
 from changemanager import ChangeManager
 
 # globals
@@ -82,6 +83,7 @@ class MainWindow(QMainWindow):
         self.saveProduct = QAction(QIcon(":icons/save.png"), "Save Product", triggered=self.saveProduct)
         self.newWorkflow = QAction(QIcon(":/icons/workflow.png"),"Add Workflow", triggered=self.addWorkflow)
         self.addOperatorAction = QAction(QIcon(":/icons/actionnode.png"),"Add Operator", triggered=self.addOperator)
+        self.show_workflow_map_action = QAction(QIcon(":/icons/wfmap.png"), "Show Workflow map", triggered= self.show_workflow_map)
         self.showConfig = QAction("Show Config", triggered=self.showConfig)
         self.showProductExplorer = QAction("Show Product Explorer", triggered=self.show_product_explorer)
         self.showOperatorEditor = QAction("Show Operator Editor", triggered=self.show_operator_editor)
@@ -152,8 +154,15 @@ class MainWindow(QMainWindow):
         ###############
         # Status bar
         ###############
+        self.product_status_widget = QLabel("Product status:")
+        self.product_status_widget.setPixmap(QIcon(":/icons/status-ok.png").pixmap(QSize(24,24)))
+        self.product_status_widget.setVisible(False)
+
         statusBarWidget = QWidget()
         statusBarWidget.setLayout(QHBoxLayout())
+        statusBarWidget.layout().addWidget(QLabel("Product status: "))
+        statusBarWidget.layout().addWidget(self.product_status_widget)
+        statusBarWidget.layout().addWidget(QLabel("|"))
         statusBarWidget.layout().addWidget(QLabel("<b>Machine Vision Workflows</b>"))
         statusBarWidget.layout().addWidget(QLabel("Created by <em>Abhilash Babu J</em>"))
         self.statusBar().addPermanentWidget(statusBarWidget)
@@ -220,6 +229,7 @@ class MainWindow(QMainWindow):
         context_menu = QMenu(self)
         if item.node_type == NodeType.WORKFLOW:
             context_menu.addAction(self.addOperatorAction)
+            context_menu.addAction(self.show_workflow_map_action)
         elif item.node_type == NodeType.PRODUCT:
             context_menu.addAction(self.newWorkflow)
         else:
@@ -385,6 +395,7 @@ class MainWindow(QMainWindow):
         fileName, _ = QFileDialog.getOpenFileName(self, filter="*.json")
         if fileName:
             logger.info(f"Opening {fileName}")
+            self.product_status_widget.setVisible(True)
             self.product = ProductModel.load_from_file(fileName)
             self.product.itemChanged.connect(self.on_product_changed)
             self.product.rowsInserted.connect(self.on_product_changed)
@@ -420,6 +431,24 @@ class MainWindow(QMainWindow):
                     node.add_operator(operator)
                     self.productExplorer.expandAll()
                     logger.info("New Operator is added")
+
+    def show_workflow_map(self):
+        """
+        Show workflow map
+        """
+        selection_model = self.productExplorer.selectionModel()
+        current_index = selection_model.currentIndex()
+        node = self.product.itemFromIndex(current_index)
+        if node is None:
+            return
+
+        node_type = node.node_type
+        if node_type == NodeType.WORKFLOW:
+            wf_map = WorkflowMap()
+            wf_map.set_workflow(node)
+            central_widget = self.centralWidget()
+            central_widget.addTab(wf_map, "Workflow Map")
+
 
     def showConfig(self):
         """ Show the application config """
