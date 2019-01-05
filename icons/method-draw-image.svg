@@ -1,0 +1,17 @@
+<svg width="320" height="300" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+ <!-- Created with Method Draw - http://github.com/duopixel/Method-Draw/ -->
+ <g>
+  <title>background</title>
+  <rect fill="#999999" id="canvas_background" height="302" width="322" y="-1" x="-1"/>
+  <g display="none" overflow="visible" y="0" x="0" height="100%" width="100%" id="canvasGrid">
+   <rect fill="url(#gridpattern)" stroke-width="0" y="0" x="0" height="100%" width="100%"/>
+  </g>
+ </g>
+ <g>
+  <title>Layer 1</title>
+  <image stroke="null" xlink:href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAEAAAABACAMAAACdt4HsAAAABGdBTUEAALGPC/xhBQAAAAFzUkdCAK7OHOkAAAAgY0hSTQAAeiYAAICEAAD6AAAAgOgAAHUwAADqYAAAOpgAABdwnLpRPAAAAQhQTFRFAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAA/wAAAAAA/wAAAAAAAAAA/wAA/wAAAAAAAAAAAAAAAAAAAAAA/wAAAAAAAAAAAAAA/wAA/wAAAAAA/wAAAAAAAAAA/wAA/wAAAAAAAAAAAAAA/wAA/wAAAAAA/wAA/wAA/wAAAAAA/wAAAAAA/wAA/wAAAAAA/wAAAAAAAAAAAAAAAAD//wAAAAD/AAD/AAD/AAD/AAD/AAD/AAD//wAAAAD/AAD//wAAAAD/AAD//wAAAAD/AAD/AAD/AAD/AAD/AAD/AAD//wAAAAD/AAD/AAD/lpaWAAAAAAD//wAAqgAADwAA/QAAMwAAEgAA////kUv43wAAAE50Uk5TJQFz/A4l5QlurgM0Q8sb8rx6IPpIOBOimVTICgxS7CJQBboq2tMGYHwVAXa7PfEVje4mJbl3aQbgkikB3Dy16gfXmPsW3vnZC7fJlCYkWmYWkgAAAAFiS0dEV30K2R8AAAAJcEhZcwAAAEgAAABIAEbJaz4AAAHVSURBVFjD7dZnU8JAEAZgBBXsvSAq9t4RomDvdS+x/f+f4u4lgWxuYG/GGcdxcgxwJe/DZbkPScEPWyoBEuCfA7YyXaeUaovPp1WmPTbVEb/Gdd060Blby+Kc4lM5fX0zQHXxtYwBdHutAdUTXepVBtAnAexyc6bfE4GBxsqgCXgyoIbChWEcjHBgVALGSBiP3ECWA54EwERjz2nspYEBk5jPtwb0z05FjkAUKNAGQACmKTcTHIFhDsxivigBMEfCvD4CC8CARcwvgQjAst57WIsIQDewYgHobCe+ezmwivk1sAHW/fMwAgzY0BW0AmBTA1kObGF+2xKAHX0EGLAbbsAKaNvbPwAOUH6XAyV8NQEiLZjcxvwhMKCMnYo1QBvYYIDjukHPBljD/Cow4EgDx3bASr2CdaDq+q1mBZxgfpEDFD7F95kNUMT8Of/XqIJlrVxYAHQDBQY4fgFL+HkpA3nMX/FzQxWsYv8av29EIFpBH6AK3lKfwncS8Ib5UQ5Qc/Tg3g2OQ3PgPbaBACj7gwcZ+MB8vwmEo0cJ+MT8ExhANRzVJIBuoNsAbhvDZwH48rwcGIATG7d8EIk/UDQq6LeKBJjthQ9f6eMPP6UlQAIkwC8D3wNv0IdKTkl7AAAAJXRFWHRkYXRlOmNyZWF0ZQAyMDE4LTEyLTMwVDAyOjQyOjM1KzAwOjAwibQhTAAAACV0RVh0ZGF0ZTptb2RpZnkAMjAxOC0xMi0zMFQwMjo0MjoyMiswMDowMPHkp+AAAAAASUVORK5CYII=" id="svg_1" height="64" width="64" y="0" x="128"/>
+  <text stroke="#000" transform="matrix(0.6243002655718257,0,0,0.9319190697314852,79.54099243839352,23.86847176052838) " font-style="italic" xml:space="preserve" text-anchor="start" font-family="Georgia, Times, 'Times New Roman', serif" font-size="36" id="svg_2" y="65.266343" x="-87.905939" stroke-width="0" fill="#000000">Machine Vision Workflows</text>
+  <path id="svg_5" d="m29.000763,130.5" opacity="0.5" stroke-width="1.5" stroke="#000" fill="#fff"/>
+  <path stroke="#000" id="svg_7" d="m25.749222,190.096543c153.114244,3.640564 104.095655,-196.590448 153.114244,3.640564c49.018589,200.231012 115.661839,9.10141 115.386454,8.798029" fill-opacity="null" stroke-opacity="null" stroke-width="1.5" fill="#fff"/>
+ </g>
+</svg>
