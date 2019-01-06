@@ -23,5 +23,6 @@ inputs:
     - input_name: image
       type: IMAGE
 
-properties:
-    - IMAGE
+outputs:
+    - name: image
+      type: IMAGE

@@ -9,5 +9,6 @@ parameters:
   type: FILE_PATH_PARAM
   default: "d:\\"
 
-properties:
-    - IMAGE
+outputs:
+    - name: image
+      type: IMAGE

@@ -49,12 +49,10 @@ class ParamDelegate(QStyledItemDelegate):
             return editor
         elif parameter_type is ParameterType.INPUT_PARAM:
             editor = QComboBox(parent)
-
             input_type = parameter.data(Qt.UserRole + 1)
-            providers = model.get_providers(input_type)
+            providers = model.get_outputs(input_type)
             for item in providers:
-                editor.addItem(item.name, item.id)
-
+                editor.addItem(item)
             return editor
 
     def setEditorData(self, editor, index):
@@ -71,6 +69,7 @@ class ParamDelegate(QStyledItemDelegate):
         elif parameter_type is ParameterType.STR_PARAM:
             editor.setText(parameter_value)
         elif parameter_type is ParameterType.INPUT_PARAM:
+            print(parameter_value)
             if parameter_value:
                 editor.setCurrentIndex(0)
             else:
@@ -91,8 +90,8 @@ class ParamDelegate(QStyledItemDelegate):
         elif parameter_type is ParameterType.STR_PARAM:
             parameter.setData(editor.text(), Qt.DisplayRole)
         elif parameter_type is ParameterType.INPUT_PARAM:
+            print(editor.currentText())
             parameter.setData(editor.currentText(), Qt.DisplayRole)
-            parameter.setData(editor.currentData(), Qt.UserRole + 2)
 
     def updateEditorGeometry(self, editor, option, index):
         model = index.model()

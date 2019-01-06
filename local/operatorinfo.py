@@ -29,3 +29,19 @@ class OperatorInfo(QStandardItemModel):
 
         print(f"Prior operartors {prior_operators}")
         return prior_operators
+
+    def get_outputs(self, input_type):
+        num_of_operators = self._workflow.rowCount()
+        prior_operators = []
+        for row in range(num_of_operators):
+            op = self._workflow.child(row)
+            if op.id != self._operator.id:
+                keys = [PROVIDER_TYPE[x] for x in op.outputs.keys()]
+                if PROVIDER_TYPE.IMAGE in keys:
+                    image_outputs = op.outputs['IMAGE']
+                    for output in image_outputs:
+                        prior_operators.append(output)
+
+        print(f"Prior operartors {prior_operators}")
+        return prior_operators
+

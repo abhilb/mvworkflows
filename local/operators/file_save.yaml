@@ -1,0 +1,14 @@
+
+name: "file_save"
+description: |
+    Saves image to the specified folder
+
+parameters:
+    - parameter: 'file_path'
+      value: 'D:\\tmp'
+      type: FILE_PATH_PARAM
+      default: "d:\\"
+
+inputs:
+    - input_name: image
+      type: IMAGE

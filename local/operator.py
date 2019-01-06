@@ -44,6 +44,7 @@ class Operator(NodeItem):
         self.properties = []
         self.parameters = OperatorInfo(self)
         self._enabled = False
+        self.outputs = {}
 
         # Operator properties
         self._number_provider = False
@@ -121,6 +122,14 @@ class Operator(NodeItem):
                     logging.error(f"Failed to conver the property {prop} to provider enum type")
                     pass
 
+        if 'outputs' in op.keys():
+
+            for output in op['outputs']:
+                output_type = output['type']
+                output_name = output['name']
+                if output_type not in self.outputs.keys():
+                    self.outputs[output_type] = []
+                self.outputs[output_type].append(self.name + '/' + output_name)
     @property
     def enabled(self):
         return self._enabled
@@ -256,10 +265,12 @@ class Operator(NodeItem):
             value = self.parameters.itemFromIndex(value_index)
             parameter_type = value.data(Qt.UserRole)
             if parameter_type == ParameterType.INPUT_PARAM:
-                inputs[parameter.text()] = value.data(Qt.UserRole + 2)
+                # inputs[parameter.text()] = value.data(Qt.UserRole + 2)
+                inputs[parameter.text()] = value.text()
             else:
                 parameters[parameter.text()] = value.text()
 
         ret['parameters'] = parameters
         ret['inputs'] = inputs
+        # ret['outputs'] = outputs
         return ret

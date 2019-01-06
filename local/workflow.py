@@ -12,13 +12,11 @@ from local.operator import Operator
 from local.misc import get_unique_name
 from local.operatorinfo import PROVIDER_TYPE
 
-logger = logging.getLogger(f"[{__name__}]")
-
 class Workflow(NodeItem):
     def __init__(self, workflowName):
         super().__init__(workflowName, QIcon(":/icons/workflow.png"),
                          NodeType.WORKFLOW)
-        self.logger = logging.getLogger(self.__class__.__name__)
+        self.logger = logging.getLogger(f"[{self.__class__.__name__}]")
         self.logger.info(f"{workflowName} Workflow created")
         self.providers = {}
         self.operatorNames = []
