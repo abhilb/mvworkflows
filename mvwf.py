@@ -178,7 +178,7 @@ class MainWindow(QMainWindow):
         self.productExplorer = ProductExplorer()
         self.productExplorer.setHeaderHidden(True)
         self.productExplorer.setContextMenuPolicy(Qt.DefaultContextMenu)
-        # self.productExplorer.clicked.connect(self.product_item_selected)
+        self.productExplorer.clicked.connect(self.product_item_selected)
         self.productExplorer.operator_selected.connect(self.operator_selected)
         self.productExplorer.product_selected.connect(self.product_selected)
         self.productExplorer.workflow_selected.connect(self.workflow_selected)
@@ -202,6 +202,20 @@ class MainWindow(QMainWindow):
 
         self.change_manager = ChangeManager()
         self.change_manager.index_changed.connect(self.update_undo_redo)
+
+    def product_item_selected(self, event):
+        selectedIndexes = self.productExplorer.selectedIndexes()
+        if len(selectedIndexes) == 0:
+            return
+
+        model = selectedIndexes[0].model()
+        item = model.itemFromIndex(selectedIndexes[0])
+        if item.node_type == NodeType.OPERATOR:
+            operatorWidget = QTreeView()
+            operatorWidget.setItemDelegate(ParamDelegate())
+            operatorWidget.setModel(item.parameters)
+            self.centralWidget().addTab(operatorWidget, "Operator")
+
 
     def contextMenuEvent(self, event):
         """
