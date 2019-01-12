@@ -5,6 +5,7 @@ import yaml
 import re
 import json
 import pickle
+import sqlite3
 
 import logging
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -32,6 +33,13 @@ from changemanager import ChangeManager
 config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
+db = sqlite3.connect('mvwf.db')
+cursor = db.cursor()
+cursor.execute("""
+        CREATE TABLE IF NOT EXISTS products
+        (ID integer, DATE text, PRODUCT json)
+        """)
+db.commit()
 
 def app_init():
     """
@@ -260,6 +268,7 @@ class MainWindow(QMainWindow):
         """
         logger.info("Client worker thread is killed")
         self.progress_dialog.hide()
+        print(self.client_worker.result)
 
     def create_task(self):
         create_task_dlg = CreateTask(self)
@@ -368,6 +377,9 @@ class MainWindow(QMainWindow):
         # Add the currently open product to recent files list
         with open("recentfiles.dat", "wb") as f:
             pickle.dump(recent_files_list, f)
+
+
+        cursor.close()
 
         # Continue with the close event
         QCloseEvent(event)
