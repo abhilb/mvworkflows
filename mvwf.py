@@ -5,7 +5,6 @@ import yaml
 import re
 import json
 import pickle
-import zmq
 
 import logging
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -26,13 +25,13 @@ from local.paramdelegate import ParamDelegate
 from local.taskselector import TaskSelector
 from local.create_task import CreateTask
 from local.product_explorer import ProductExplorer
+from local.client_worker import ClientWorker
 from changemanager import ChangeManager
 
 # globals
 config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
-context = zmq.Context()
 
 def app_init():
     """
@@ -203,6 +202,12 @@ class MainWindow(QMainWindow):
         self.change_manager = ChangeManager()
         self.change_manager.index_changed.connect(self.update_undo_redo)
 
+        self.progress_dialog = QProgressDialog(self)
+        self.progress_dialog.setWindowTitle("Workflow Execution in progress")
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.setWindowFlags(Qt.Window | Qt.WindowTitleHint | Qt.CustomizeWindowHint)
+        self.progress_dialog.setCancelButton(None)
+
     def product_item_selected(self, event):
         selectedIndexes = self.productExplorer.selectedIndexes()
         if len(selectedIndexes) == 0:
@@ -243,7 +248,18 @@ class MainWindow(QMainWindow):
         context_menu.exec_(self.mapToGlobal(event.pos()))
 
     def execute(self):
-        pass
+        self.client_worker = ClientWorker(self)
+        self.client_worker.completedSignal.connect(self.completed_execution)
+        self.client_worker.start()
+        self.progress_dialog.setRange(0,0)
+        self.progress_dialog.show()
+
+    def completed_execution(self):
+        """
+        Slot to capture the completed signal from the client worker thread
+        """
+        logger.info("Client worker thread is killed")
+        self.progress_dialog.hide()
 
     def create_task(self):
         create_task_dlg = CreateTask(self)
@@ -348,9 +364,6 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """ Slot for the application close event """
         logger.info("Application close event")
-
-        # Closethe zmq socket
-        context.destroy()
 
         # Add the currently open product to recent files list
         with open("recentfiles.dat", "wb") as f:

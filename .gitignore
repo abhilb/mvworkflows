@@ -9,3 +9,6 @@ recentfiles.dat
 *.json
 venv
 venv/*
+backend/cpp/build
+backend/cpp/build/CMakeFiles
+backend/cpp/build/CMakeFiles/*
