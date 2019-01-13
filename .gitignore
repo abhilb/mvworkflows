@@ -12,3 +12,4 @@ venv/*
 backend/cpp/build
 backend/cpp/build/CMakeFiles
 backend/cpp/build/CMakeFiles/*
+*.db
