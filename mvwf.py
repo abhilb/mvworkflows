@@ -6,6 +6,9 @@ import re
 import json
 import pickle
 import sqlite3
+import uuid
+
+from collections import deque
 
 import logging
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -34,12 +37,6 @@ config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
 db = sqlite3.connect('mvwf.db')
-cursor = db.cursor()
-cursor.execute("""
-        CREATE TABLE IF NOT EXISTS products
-        (ID integer, DATE text, PRODUCT json)
-        """)
-db.commit()
 
 def app_init():
     """
@@ -210,11 +207,6 @@ class MainWindow(QMainWindow):
         self.change_manager = ChangeManager()
         self.change_manager.index_changed.connect(self.update_undo_redo)
 
-        self.progress_dialog = QProgressDialog(self)
-        self.progress_dialog.setWindowTitle("Workflow Execution in progress")
-        self.progress_dialog.setModal(True)
-        self.progress_dialog.setWindowFlags(Qt.Window | Qt.WindowTitleHint | Qt.CustomizeWindowHint)
-        self.progress_dialog.setCancelButton(None)
 
     def product_item_selected(self, event):
         selectedIndexes = self.productExplorer.selectedIndexes()
@@ -259,6 +251,12 @@ class MainWindow(QMainWindow):
         self.client_worker = ClientWorker(self)
         self.client_worker.completedSignal.connect(self.completed_execution)
         self.client_worker.start()
+        self.progress_dialog = QProgressDialog(self)
+        self.progress_dialog.setWindowTitle("Workflow Execution in progress")
+        self.progress_dialog.setModal(True)
+        self.progress_dialog.setWindowFlags(Qt.Window | Qt.WindowTitleHint | Qt.CustomizeWindowHint)
+        self.progress_dialog.setCancelButton(None)
+        self.progress_dialog.hide()
         self.progress_dialog.setRange(0,0)
         self.progress_dialog.show()
 
@@ -268,6 +266,7 @@ class MainWindow(QMainWindow):
         """
         logger.info("Client worker thread is killed")
         self.progress_dialog.hide()
+        self.progress_dialog = None
         print(self.client_worker.result)
 
     def create_task(self):
@@ -378,7 +377,6 @@ class MainWindow(QMainWindow):
         with open("recentfiles.dat", "wb") as f:
             pickle.dump(recent_files_list, f)
 
-
         cursor.close()
 
         # Continue with the close event
@@ -398,6 +396,7 @@ class MainWindow(QMainWindow):
         else:
             self.dockingWidget.show()
         pass
+        self.product_id = str(uuid.uuid4())
         self.product = ProductModel()
         self.product.itemChanged.connect(self.on_product_changed)
         self.product.rowsInserted.connect(self.on_product_changed)
@@ -409,11 +408,15 @@ class MainWindow(QMainWindow):
     def saveProduct(self):
         """ Save the currently open product """
         if self.product.isValid():
-            product_json = self.product.save()
-            product_name = product_json['name']
-            filename = product_name + ".json"
-            with open(filename, "w") as f:
-                json.dump(product_json, f, indent=4)
+            product_json = json.dumps(self.product.save(), indent=4)
+            cursor.execute("""
+                    INSERT INTO products (PRODUCT_ID, PRODUCT) VALUES (?,?)
+                    """, (self.product_id, product_json))
+            db.commit()
+            # product_name = product_json['name']
+            # filename = product_name + ".json"
+            # with open(filename, "w") as f:
+            #     json.dump(product_json, f, indent=4)
 
             self.change_manager.clear()
         else:
@@ -486,13 +489,19 @@ if __name__ == "__main__":
     splash = QSplashScreen(splash_img, Qt.WindowStaysOnTopHint)
     splash.show()
 
+    cursor = db.cursor()
+    cursor.execute("""
+            CREATE TABLE IF NOT EXISTS products
+            (PRODUCT_ID text, PRODUCT json)
+            """)
+    cursor.execute("""
+            CREATE TABLE IF NOT EXISTS recent_files
+            (ID integer, PRODUCT_ID text)
+            """)
+    db.commit()
+
     mainWindow = MainWindow()
     mainWindow.setWindowIcon(QIcon(":/icons/logo.png"))
-    # mainWindow.setStyleSheet("""
-    #         QMainWindow {
-    #         background-color : rgb(40, 40, 40);
-    #         }
-    #         """)
     mainWindow.show()
 
     splash.finish(mainWindow)
