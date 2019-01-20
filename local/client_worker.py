@@ -29,6 +29,15 @@ class ClientWorker(QThread):
         self.ctx = zmq.Context.instance()
         self.socket = self.ctx.socket(zmq.REQ)
         self.socket.connect("tcp://localhost:5556")
+        self._result = {}
+
+    @property
+    def result(self):
+        """
+        Return the workflow execution result
+        """
+        return self._result
+
 
     def run(self):
         """
@@ -40,7 +49,9 @@ class ClientWorker(QThread):
         if poll_result == 0:
             logger.info("Timed out")
         else:
-            msg = self.socket.recv_multipart()
+            self._result = self.socket.recv_multipart()
         logger.info("Exiting the client worker")
         self.completedSignal.emit()
+        self.socket.close()
+        self.ctx.destroy()
 
