@@ -421,11 +421,22 @@ class MainWindow(QMainWindow):
                 query = select([products_tbl])
                 query_result = con.execute(query)
                 products_list = query_result.fetchall()
-                product_names = [x['name'] for x in products_list]
-                print(product_names)
+                print(products_list)
 
-                ins = products_tbl.insert().values(product=product_json)
-                con.execute(ins)
+                #TODO: Add id field to product to uniquely identify a product. 
+                # Multiple products can have the same name. 
+                product_names = []
+                for p in products_list:
+                    idx, product_ = p
+                    product_dict_ = json.loads(product_)
+                    product_names.append(product_dict_["name"])
+
+                if product_json["name"] in product_names:
+                    #TODO: Add update statement here
+                    pass
+                else:
+                    ins = products_tbl.insert().values(product=product_json)
+                    con.execute(ins)
 
             self.change_manager.clear()
         else:
