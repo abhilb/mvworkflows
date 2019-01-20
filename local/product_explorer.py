@@ -9,6 +9,7 @@ class ProductExplorer(QTreeView):
     operator_selected = pyqtSignal(QModelIndex)
     workflow_selected = pyqtSignal(QModelIndex)
     product_selected = pyqtSignal(QModelIndex)
+    model_is_set = pyqtSignal()
 
     def __init__(self, parent = None):
         super().__init__(parent)
@@ -18,6 +19,7 @@ class ProductExplorer(QTreeView):
         self.setModel(model)
         selectionModel = self.selectionModel()
         selectionModel.currentChanged.connect(self.on_current_changed)
+        self.model_is_set.emit()
 
     def on_current_changed(self, index):
         currentIndex = self.selectionModel().currentIndex()

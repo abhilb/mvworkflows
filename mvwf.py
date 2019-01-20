@@ -104,12 +104,12 @@ class MainWindow(QMainWindow):
         self.redo_change_action.setEnabled(False)
         self.execute_action = QAction(QIcon(":icons/execute.png"), "Execute", triggered=self.execute)
         self.create_task_action = QAction("Create new task", triggered=self.create_task)
+        self.execute_action.setEnabled(False)
 
         # Action short cuts
         self.newProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_N))
         self.openProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_O))
         self.saveProduct.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
-
 
         ###############
         # Menu bar
@@ -188,6 +188,7 @@ class MainWindow(QMainWindow):
         self.productExplorer.operator_selected.connect(self.operator_selected)
         self.productExplorer.product_selected.connect(self.product_selected)
         self.productExplorer.workflow_selected.connect(self.workflow_selected)
+        self.productExplorer.model_is_set.connect(self.enable_execute_action)
 
         self.dockingWidget = QDockWidget("Product explorer", self)
         self.dockingWidget.setWidget(self.productExplorer)
@@ -209,6 +210,8 @@ class MainWindow(QMainWindow):
         self.change_manager = ChangeManager()
         self.change_manager.index_changed.connect(self.update_undo_redo)
 
+    def enable_execute_action(self):
+        self.execute_action.setEnabled(True)
 
     def product_item_selected(self, event):
         selectedIndexes = self.productExplorer.selectedIndexes()
