@@ -9,6 +9,8 @@ import sqlite3
 import uuid
 
 from collections import deque
+from sqlalchemy import create_engine, Table, MetaData, Column, Integer, String
+from sqlalchemy.sql import select, and_
 
 import logging
 LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
@@ -36,7 +38,7 @@ from changemanager import ChangeManager
 config = {}
 recent_files_list = []
 app = QApplication(sys.argv)
-db = sqlite3.connect('mvwf.db')
+db = create_engine("sqlite:///mvwf.db")
 
 def app_init():
     """
@@ -377,8 +379,6 @@ class MainWindow(QMainWindow):
         with open("recentfiles.dat", "wb") as f:
             pickle.dump(recent_files_list, f)
 
-        cursor.close()
-
         # Continue with the close event
         QCloseEvent(event)
 
@@ -409,14 +409,20 @@ class MainWindow(QMainWindow):
         """ Save the currently open product """
         if self.product.isValid():
             product_json = json.dumps(self.product.save(), indent=4)
-            cursor.execute("""
-                    INSERT INTO products (PRODUCT_ID, PRODUCT) VALUES (?,?)
-                    """, (self.product_id, product_json))
-            db.commit()
-            # product_name = product_json['name']
-            # filename = product_name + ".json"
-            # with open(filename, "w") as f:
-            #     json.dump(product_json, f, indent=4)
+            #TODO: Check if the db already has this product.
+            # in that case only update the product instead of
+            # insert.
+            with db.connect() as con:
+                meta = MetaData(db)
+                products_tbl = Table('products', meta, autoload=True)
+                query = select([products_tbl])
+                query_result = con.execute(query)
+                products_list = query_result.fetchall()
+                product_names = [x['name'] for x in products_list]
+                print(product_names)
+
+                ins = products_tbl.insert().values(product=product_json)
+                con.execute(ins)
 
             self.change_manager.clear()
         else:
@@ -424,18 +430,31 @@ class MainWindow(QMainWindow):
 
     def openProduct(self):
         """ Open a product """
-        fileName, _ = QFileDialog.getOpenFileName(self, filter="*.json")
-        if fileName:
-            logger.info(f"Opening {fileName}")
-            self.product = ProductModel.load_from_file(fileName)
-            self.product.itemChanged.connect(self.on_product_changed)
-            self.product.rowsInserted.connect(self.on_product_changed)
-            self.product.rowsRemoved.connect(self.on_product_changed)
-            self.product.rowsMoved.connect(self.on_product_changed)
-            self.productExplorer.set_model(self.product)
-            if fileName in recent_files_list:
-                recent_files_list.remove(fileName)
-            recent_files_list.append(fileName)
+        #TODO:
+        # Select all the products available in the database and
+        # show a combo box updated with that list. User can then
+        # choose the product from there.
+        with db.connect() as con:
+            meta = MetaData(db)
+            products_tbl = Table('products', meta, autoload=True)
+            query = select([products_tbl])
+            query_result = con.execute(query)
+            products = [x[1] for x in query_result.fetchall()]
+            product_names = [json.loads(x)["name"] for x in products]
+            product_name, ok = QInputDialog.getItem(self, "", "", product_names, -1, False)
+            if product_name:
+                self.product = ProductModel()
+                self.product.load(json.loads(products[product_names.index(product_name)]))
+                self.product.itemChanged.connect(self.on_product_changed)
+                self.product.rowsInserted.connect(self.on_product_changed)
+                self.product.rowsRemoved.connect(self.on_product_changed)
+                self.product.rowsMoved.connect(self.on_product_changed)
+                self.productExplorer.set_model(self.product)
+
+        #TODO: Recent files
+        #     if fileName in recent_files_list:
+        #         recent_files_list.remove(fileName)
+        #     recent_files_list.append(fileName)
 
     def addWorkflow(self):
         """ Add a workflow to the currently open product """
@@ -489,16 +508,14 @@ if __name__ == "__main__":
     splash = QSplashScreen(splash_img, Qt.WindowStaysOnTopHint)
     splash.show()
 
-    cursor = db.cursor()
-    cursor.execute("""
-            CREATE TABLE IF NOT EXISTS products
-            (PRODUCT_ID text, PRODUCT json)
-            """)
-    cursor.execute("""
-            CREATE TABLE IF NOT EXISTS recent_files
-            (ID integer, PRODUCT_ID text)
-            """)
-    db.commit()
+    meta = MetaData()
+    products_tbl = Table('products', meta,
+            Column('id', Integer, primary_key=True),
+            Column('product', String))
+    mru_tbl = Table('mru', meta,
+            Column('id', Integer, primary_key=True),
+            Column('product_id', Integer))
+    meta.create_all(db)
 
     mainWindow = MainWindow()
     mainWindow.setWindowIcon(QIcon(":/icons/logo.png"))
